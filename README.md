@@ -2,6 +2,16 @@
 
 A production-ready, full-stack real-time payment processing system built with Node.js, Next.js, Apache Kafka, and PostgreSQL. This system simulates a fintech infrastructure with <200ms latency and 99.99% uptime metrics.
 
+## 📸 Live Demo
+
+### Real-Time Dashboard
+![Real-Time Payment Dashboard](cc1.png)
+*Live dashboard showing real-time transaction monitoring, KPI cards, and system analytics*
+
+### Transaction Processing
+![Recent Transactions Table](cc2.png)
+*Real-time transaction table with fraud detection and balance validation in action*
+
 ## 🚀 Features
 
 - **Real-time Transaction Processing**: Kafka-based event streaming with WebSocket updates
