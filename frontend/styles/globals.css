@@ -6,11 +6,24 @@
   html {
     font-family: 'Inter', system-ui, sans-serif;
   }
+  
+  :root {
+    --gradient-background-start: rgb(108, 0, 162);
+    --gradient-background-end: rgb(0, 17, 82);
+    --first-color: 18, 113, 255;
+    --second-color: 221, 74, 255;
+    --third-color: 100, 220, 255;
+    --fourth-color: 200, 50, 50;
+    --fifth-color: 180, 180, 50;
+    --pointer-color: 140, 100, 255;
+    --size: 80%;
+    --blending-value: hard-light;
+  }
 }
 
 @layer components {
   .card {
-    @apply bg-white rounded-lg shadow-md border border-gray-200 p-6;
+    @apply bg-white/10 backdrop-blur-lg rounded-xl border border-white/20 p-6 shadow-xl;
   }
   
   .btn-primary {
@@ -22,14 +35,22 @@
   }
   
   .status-approved {
-    @apply bg-success-100 text-success-800 px-2 py-1 rounded-full text-xs font-medium;
+    @apply bg-green-500/20 text-green-400 border border-green-500/30 px-3 py-1 rounded-full text-xs font-medium;
   }
   
   .status-declined {
-    @apply bg-danger-100 text-danger-800 px-2 py-1 rounded-full text-xs font-medium;
+    @apply bg-red-500/20 text-red-400 border border-red-500/30 px-3 py-1 rounded-full text-xs font-medium;
   }
   
   .status-pending {
-    @apply bg-yellow-100 text-yellow-800 px-2 py-1 rounded-full text-xs font-medium;
+    @apply bg-yellow-500/20 text-yellow-400 border border-yellow-500/30 px-3 py-1 rounded-full text-xs font-medium;
+  }
+}
+
+@layer utilities {
+  .gradients-container {
+    position: absolute;
+    inset: 0;
+    overflow: hidden;
   }
 }

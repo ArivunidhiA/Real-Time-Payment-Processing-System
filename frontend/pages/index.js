@@ -13,6 +13,7 @@ export default function Dashboard() {
   const reconnectTimeoutRef = useRef(null);
 
   const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:3001';
+  const apiBaseUrl = `${backendUrl}/api`;
 
   // WebSocket connection
   const connectWebSocket = () => {
@@ -66,8 +67,8 @@ export default function Dashboard() {
       
       // Fetch transactions and stats in parallel
       const [transactionsRes, statsRes] = await Promise.all([
-        fetch(`${backendUrl}/transactions`),
-        fetch(`${backendUrl}/stats`)
+        fetch(`${apiBaseUrl}/transactions`),
+        fetch(`${apiBaseUrl}/stats`)
       ]);
 
       if (transactionsRes.ok) {
@@ -89,7 +90,7 @@ export default function Dashboard() {
   // Generate a single transaction
   const generateTransaction = async () => {
     try {
-      const response = await fetch(`${backendUrl}/transactions/generate`, {
+      const response = await fetch(`${apiBaseUrl}/transactions/generate`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -108,7 +109,7 @@ export default function Dashboard() {
   // Start/stop producer
   const toggleProducer = async (action) => {
     try {
-      const response = await fetch(`${backendUrl}/transactions/producer/${action}`, {
+      const response = await fetch(`${apiBaseUrl}/transactions/producer/${action}`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -129,7 +130,7 @@ export default function Dashboard() {
 
     // Refresh stats every 10 seconds
     const statsInterval = setInterval(() => {
-      fetch(`${backendUrl}/stats`)
+      fetch(`${apiBaseUrl}/stats`)
         .then(res => res.json())
         .then(data => setStats(data.data))
         .catch(console.error);

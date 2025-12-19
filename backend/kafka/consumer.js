@@ -1,5 +1,8 @@
 const { Kafka } = require('kafkajs');
 const { db } = require('../db/db');
+const fraudDetection = require('../services/fraudDetection');
+const paymentGateway = require('../services/paymentGateway');
+const logger = require('../utils/logger');
 require('dotenv').config();
 
 const kafka = new Kafka({
@@ -46,13 +49,21 @@ class TransactionConsumer {
     }
   }
 
-  // Simulate fraud detection
-  isFraudulent(transaction) {
-    // Random fraud flag for transactions > $5000
-    if (transaction.amount > 5000) {
-      return Math.random() < 0.1; // 10% chance of fraud for high-value transactions
+  // Enhanced fraud detection using fraud detection service
+  async detectFraud(transaction) {
+    try {
+      const analysis = await fraudDetection.analyzeTransaction(transaction);
+      return analysis;
+    } catch (error) {
+      logger.logError(error, { transactionId: transaction.transactionId });
+      // On error, default to low risk
+      return {
+        isFraudulent: false,
+        riskScore: 0.1,
+        reasons: ['Fraud detection error'],
+        flags: []
+      };
     }
-    return Math.random() < 0.01; // 1% chance of fraud for regular transactions
   }
 
   // Check if user has sufficient balance
@@ -71,36 +82,81 @@ class TransactionConsumer {
     const startTime = Date.now();
     
     try {
-      // Fraud check
-      if (this.isFraudulent(transaction)) {
+      // Step 1: Fraud detection
+      const fraudAnalysis = await this.detectFraud(transaction);
+      transaction.riskScore = fraudAnalysis.riskScore;
+      transaction.fraudFlags = fraudAnalysis.flags;
+
+      if (fraudAnalysis.isFraudulent) {
         transaction.status = 'DECLINED';
         transaction.declineReason = 'FRAUD_DETECTED';
-        console.log(`Transaction ${transaction.transactionId} declined: Fraud detected`);
+        transaction.metadata = {
+          fraudReasons: fraudAnalysis.reasons,
+          flags: fraudAnalysis.flags
+        };
+        logger.logSecurity('Transaction declined due to fraud', {
+          transactionId: transaction.transactionId,
+          riskScore: fraudAnalysis.riskScore,
+          reasons: fraudAnalysis.reasons
+        });
       } else {
-        // Balance check
+        // Step 2: Balance check
         const hasBalance = await this.hasSufficientBalance(transaction.userId, transaction.amount);
         
-        if (hasBalance) {
-          // Update user balance
-          const user = await db.getUserById(transaction.userId);
-          const newBalance = user.balance - transaction.amount;
-          await db.updateUserBalance(transaction.userId, newBalance);
-          
-          transaction.status = 'APPROVED';
-          console.log(`Transaction ${transaction.transactionId} approved: $${transaction.amount} at ${transaction.merchant}`);
-        } else {
+        if (!hasBalance) {
           transaction.status = 'DECLINED';
           transaction.declineReason = 'INSUFFICIENT_FUNDS';
-          console.log(`Transaction ${transaction.transactionId} declined: Insufficient funds`);
+          logger.info(`Transaction ${transaction.transactionId} declined: Insufficient funds`);
+        } else {
+          // Step 3: Process payment through gateway
+          try {
+            const gatewayResult = await paymentGateway.processPayment(transaction);
+            
+            transaction.gateway = gatewayResult.gateway;
+            transaction.gatewayPaymentId = gatewayResult.paymentId;
+            
+            if (gatewayResult.status === 'APPROVED') {
+              // Update user balance
+              const user = await db.getUserById(transaction.userId);
+              const newBalance = user.balance - transaction.amount;
+              await db.updateUserBalance(transaction.userId, newBalance);
+              
+              transaction.status = 'APPROVED';
+              logger.logTransaction(transaction, 'APPROVED', {
+                gateway: gatewayResult.gateway,
+                riskScore: fraudAnalysis.riskScore
+              });
+            } else {
+              transaction.status = 'DECLINED';
+              transaction.declineReason = gatewayResult.declineReason || 'GATEWAY_DECLINED';
+              transaction.metadata = {
+                ...transaction.metadata,
+                gatewayError: gatewayResult.gatewayError
+              };
+              logger.info(`Transaction ${transaction.transactionId} declined by gateway: ${transaction.declineReason}`);
+            }
+          } catch (gatewayError) {
+            // Gateway error - decline transaction
+            transaction.status = 'DECLINED';
+            transaction.declineReason = 'GATEWAY_ERROR';
+            transaction.metadata = {
+              ...transaction.metadata,
+              gatewayError: gatewayError.message
+            };
+            logger.logError(gatewayError, {
+              transactionId: transaction.transactionId,
+              step: 'payment_gateway'
+            });
+          }
         }
       }
 
-      // Store transaction in database
-      const savedTransaction = await db.insertTransaction(transaction);
-      
       // Calculate processing latency
       const latency = Date.now() - startTime;
       transaction.processingLatency = latency;
+
+      // Store transaction in database
+      const savedTransaction = await db.insertTransaction(transaction);
       
       // Broadcast to WebSocket clients
       if (this.websocketServer) {
@@ -111,9 +167,24 @@ class TransactionConsumer {
       
       return savedTransaction;
     } catch (error) {
-      console.error('Error processing transaction:', error);
+      logger.logError(error, {
+        transactionId: transaction.transactionId,
+        step: 'process_transaction'
+      });
       transaction.status = 'ERROR';
-      transaction.error = error.message;
+      transaction.declineReason = 'PROCESSING_ERROR';
+      transaction.metadata = {
+        error: error.message,
+        stack: error.stack
+      };
+      
+      // Still try to save the error transaction
+      try {
+        await db.insertTransaction(transaction);
+      } catch (saveError) {
+        logger.logError(saveError, { transactionId: transaction.transactionId });
+      }
+      
       return transaction;
     }
   }

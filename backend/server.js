@@ -2,27 +2,107 @@ const express = require('express');
 const http = require('http');
 const WebSocket = require('ws');
 const cors = require('cors');
+const helmet = require('helmet');
+const compression = require('compression');
 require('dotenv').config();
+
+// Initialize Sentry for error tracking
+if (process.env.SENTRY_DSN) {
+  const Sentry = require('@sentry/node');
+  Sentry.init({
+    dsn: process.env.SENTRY_DSN,
+    environment: process.env.NODE_ENV || 'development',
+    tracesSampleRate: process.env.NODE_ENV === 'production' ? 0.1 : 1.0
+  });
+}
 
 const routes = require('./routes');
 const TransactionProducer = require('./kafka/producer');
 const TransactionConsumer = require('./kafka/consumer');
+const { errorHandler, notFoundHandler } = require('./middleware/errorHandler');
+const logger = require('./utils/logger');
 
 const app = express();
 const server = http.createServer(app);
 const wss = new WebSocket.Server({ server });
 
-// Middleware
-app.use(cors());
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
+// Trust proxy (important for rate limiting behind reverse proxy)
+app.set('trust proxy', 1);
 
-// Routes
-app.use('/', routes);
+// Security middleware
+app.use(helmet({
+  contentSecurityPolicy: process.env.NODE_ENV === 'production' ? undefined : false,
+  crossOriginEmbedderPolicy: false
+}));
+
+// Compression middleware
+app.use(compression());
+
+// CORS configuration
+const allowedOrigins = process.env.ALLOWED_ORIGINS 
+  ? process.env.ALLOWED_ORIGINS.split(',')
+  : ['http://localhost:3000', 'http://localhost:3001'];
+
+app.use(cors({
+  origin: (origin, callback) => {
+    // Allow requests with no origin (mobile apps, Postman, etc.)
+    if (!origin) return callback(null, true);
+    
+    if (allowedOrigins.indexOf(origin) !== -1 || process.env.NODE_ENV === 'development') {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization']
+}));
+
+// Body parsing middleware
+app.use(express.json({ limit: '10mb' }));
+app.use(express.urlencoded({ extended: true, limit: '10mb' }));
+
+// Request logging middleware
+app.use((req, res, next) => {
+  const startTime = Date.now();
+  
+  res.on('finish', () => {
+    const responseTime = Date.now() - startTime;
+    logger.logRequest(req, res, responseTime);
+  });
+  
+  next();
+});
+
+// API routes
+app.use('/api', routes);
+
+// Root route
+app.get('/', (req, res) => {
+  res.json({
+    success: true,
+    message: 'Real-Time Payment Processing System API',
+    version: '1.0.0',
+    endpoints: {
+      health: '/api/health',
+      transactions: '/api/transactions',
+      stats: '/api/stats',
+      auth: '/api/auth'
+    }
+  });
+});
+
+// 404 handler
+app.use(notFoundHandler);
+
+// Error handler (must be last)
+app.use(errorHandler);
 
 // WebSocket connection handling
-wss.on('connection', (ws) => {
-  console.log('New WebSocket client connected');
+wss.on('connection', (ws, req) => {
+  const clientIp = req.socket.remoteAddress;
+  logger.info('New WebSocket client connected', { ip: clientIp });
   
   // Send welcome message
   ws.send(JSON.stringify({
@@ -32,11 +112,22 @@ wss.on('connection', (ws) => {
   }));
 
   ws.on('close', () => {
-    console.log('WebSocket client disconnected');
+    logger.info('WebSocket client disconnected', { ip: clientIp });
   });
 
   ws.on('error', (error) => {
-    console.error('WebSocket error:', error);
+    logger.logError(error, { service: 'websocket', ip: clientIp });
+  });
+
+  // Heartbeat to keep connection alive
+  const heartbeatInterval = setInterval(() => {
+    if (ws.readyState === WebSocket.OPEN) {
+      ws.ping();
+    }
+  }, 30000); // Every 30 seconds
+
+  ws.on('close', () => {
+    clearInterval(heartbeatInterval);
   });
 });
 
@@ -62,62 +153,74 @@ async function initializeKafka() {
     // Start producing transactions (every 2 seconds)
     producer.startProducing(2000);
     
-    console.log('Kafka components initialized successfully');
+    logger.info('Kafka components initialized successfully');
   } catch (error) {
-    console.error('Failed to initialize Kafka components:', error);
+    logger.logError(error, { service: 'kafka_initialization' });
     // Don't exit the process, allow the server to start without Kafka for development
   }
 }
 
 // Graceful shutdown
-process.on('SIGINT', async () => {
-  console.log('Shutting down gracefully...');
+async function gracefulShutdown(signal) {
+  logger.info(`Received ${signal}, shutting down gracefully...`);
   
-  if (producer) {
-    producer.stopProducing();
-    await producer.disconnect();
-  }
-  
-  if (consumer) {
-    consumer.stopConsuming();
-    await consumer.disconnect();
-  }
-  
+  // Stop accepting new connections
   server.close(() => {
-    console.log('Server closed');
-    process.exit(0);
+    logger.info('HTTP server closed');
   });
-});
 
-process.on('SIGTERM', async () => {
-  console.log('Received SIGTERM, shutting down gracefully...');
+  // Close WebSocket connections
+  wss.clients.forEach(client => {
+    client.close();
+  });
   
+  // Stop Kafka components
   if (producer) {
     producer.stopProducing();
-    await producer.disconnect();
+    await producer.disconnect().catch(err => logger.logError(err));
   }
   
   if (consumer) {
     consumer.stopConsuming();
-    await consumer.disconnect();
+    await consumer.disconnect().catch(err => logger.logError(err));
   }
   
-  server.close(() => {
-    console.log('Server closed');
+  // Give time for cleanup
+  setTimeout(() => {
+    logger.info('Shutdown complete');
     process.exit(0);
-  });
-});
+  }, 5000);
+}
+
+process.on('SIGINT', () => gracefulShutdown('SIGINT'));
+process.on('SIGTERM', () => gracefulShutdown('SIGTERM'));
 
 // Start server
 const PORT = process.env.PORT || 3001;
 
 server.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
-  console.log(`WebSocket server running on ws://localhost:${PORT}`);
-  console.log(`Health check: http://localhost:${PORT}/health`);
+  logger.info(`Server running on port ${PORT}`);
+  logger.info(`WebSocket server running on ws://localhost:${PORT}/stream`);
+  logger.info(`Health check: http://localhost:${PORT}/api/health`);
+  logger.info(`Keep-alive: http://localhost:${PORT}/api/keep-alive`);
+  logger.info(`Environment: ${process.env.NODE_ENV || 'development'}`);
   
   // Initialize Kafka components after server starts
   initializeKafka();
+  
+  // Start keep-alive service if enabled (prevents Render spin-down)
+  if (process.env.ENABLE_KEEP_ALIVE === 'true' && process.env.SERVICE_URL) {
+    const KeepAliveService = require('./utils/keepAlive');
+    const keepAlive = new KeepAliveService(
+      process.env.SERVICE_URL,
+      parseInt(process.env.KEEP_ALIVE_INTERVAL || '5')
+    );
+    keepAlive.start();
+    logger.info('Keep-alive service started', {
+      url: process.env.SERVICE_URL,
+      interval: process.env.KEEP_ALIVE_INTERVAL || '5 minutes'
+    });
+  }
 });
 
 module.exports = { app, server, wss };

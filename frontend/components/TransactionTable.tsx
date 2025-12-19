@@ -1,0 +1,184 @@
+import React from 'react';
+import { motion } from 'framer-motion';
+import { CheckCircle2, XCircle, Clock, FileText } from 'lucide-react';
+
+interface Transaction {
+  id: number;
+  transaction_id: string;
+  user_id: number;
+  amount: number;
+  merchant: string;
+  status: string;
+  timestamp: string;
+}
+
+interface TransactionTableProps {
+  transactions: Transaction[];
+  isLoading: boolean;
+}
+
+const TransactionTable: React.FC<TransactionTableProps> = ({ transactions, isLoading }) => {
+  const formatAmount = (amount: number) => {
+    return new Intl.NumberFormat('en-US', {
+      style: 'currency',
+      currency: 'USD'
+    }).format(amount);
+  };
+
+  const formatTimestamp = (timestamp: string) => {
+    return new Date(timestamp).toLocaleString('en-US', {
+      month: 'short',
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
+      second: '2-digit'
+    });
+  };
+
+  const getStatusBadge = (status: string) => {
+    const baseClasses = "px-3 py-1 rounded-full text-xs font-medium flex items-center gap-1.5";
+    
+    switch (status) {
+      case 'APPROVED':
+        return `${baseClasses} bg-green-500/20 text-green-400 border border-green-500/30`;
+      case 'DECLINED':
+        return `${baseClasses} bg-red-500/20 text-red-400 border border-red-500/30`;
+      case 'PENDING':
+        return `${baseClasses} bg-yellow-500/20 text-yellow-400 border border-yellow-500/30`;
+      default:
+        return `${baseClasses} bg-gray-500/20 text-gray-400 border border-gray-500/30`;
+    }
+  };
+
+  const getStatusIcon = (status: string) => {
+    switch (status) {
+      case 'APPROVED':
+        return <CheckCircle2 className="w-3.5 h-3.5" />;
+      case 'DECLINED':
+        return <XCircle className="w-3.5 h-3.5" />;
+      case 'PENDING':
+        return <Clock className="w-3.5 h-3.5" />;
+      default:
+        return <FileText className="w-3.5 h-3.5" />;
+    }
+  };
+
+  if (isLoading) {
+    return (
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        className="bg-white/10 backdrop-blur-lg rounded-xl border border-white/20 p-6 shadow-xl"
+      >
+        <h3 className="text-lg font-semibold text-white mb-4">Recent Transactions</h3>
+        <div className="overflow-x-auto">
+          <table className="min-w-full">
+            <thead>
+              <tr className="border-b border-white/10">
+                <th className="px-6 py-3 text-left text-xs font-medium text-white/70 uppercase tracking-wider">ID</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-white/70 uppercase tracking-wider">User</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-white/70 uppercase tracking-wider">Amount</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-white/70 uppercase tracking-wider">Merchant</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-white/70 uppercase tracking-wider">Status</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-white/70 uppercase tracking-wider">Time</th>
+              </tr>
+            </thead>
+            <tbody>
+              {[...Array(5)].map((_, i) => (
+                <tr key={i} className="animate-pulse border-b border-white/5">
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    <div className="h-4 bg-white/10 rounded w-24"></div>
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    <div className="h-4 bg-white/10 rounded w-8"></div>
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    <div className="h-4 bg-white/10 rounded w-16"></div>
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    <div className="h-4 bg-white/10 rounded w-20"></div>
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    <div className="h-6 bg-white/10 rounded-full w-20"></div>
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    <div className="h-4 bg-white/10 rounded w-20"></div>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </motion.div>
+    );
+  }
+
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.5 }}
+      className="bg-white/10 backdrop-blur-lg rounded-xl border border-white/20 p-6 shadow-xl"
+    >
+      <h3 className="text-lg font-semibold text-white mb-6">Recent Transactions</h3>
+      <div className="overflow-x-auto">
+        <table className="min-w-full">
+          <thead>
+            <tr className="border-b border-white/10">
+              <th className="px-6 py-3 text-left text-xs font-medium text-white/70 uppercase tracking-wider">ID</th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-white/70 uppercase tracking-wider">User</th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-white/70 uppercase tracking-wider">Amount</th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-white/70 uppercase tracking-wider">Merchant</th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-white/70 uppercase tracking-wider">Status</th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-white/70 uppercase tracking-wider">Time</th>
+            </tr>
+          </thead>
+          <tbody>
+            {transactions && transactions.length > 0 ? (
+              transactions.map((transaction, index) => (
+                <motion.tr
+                  key={transaction.id}
+                  initial={{ opacity: 0, x: -20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ duration: 0.3, delay: index * 0.05 }}
+                  className="border-b border-white/5 hover:bg-white/5 transition-colors"
+                >
+                  <td className="px-6 py-4 whitespace-nowrap text-sm font-mono text-white/90">
+                    {transaction.transaction_id?.substring(0, 12)}...
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-white/90">
+                    User {transaction.user_id}
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm font-semibold text-white">
+                    {formatAmount(transaction.amount)}
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-white/90">
+                    {transaction.merchant}
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    <span className={getStatusBadge(transaction.status)}>
+                      {getStatusIcon(transaction.status)}
+                      {transaction.status}
+                    </span>
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-white/70">
+                    {formatTimestamp(transaction.timestamp)}
+                  </td>
+                </motion.tr>
+              ))
+            ) : (
+              <tr>
+                <td colSpan={6} className="px-6 py-8 text-center text-sm text-white/50">
+                  No transactions available
+                </td>
+              </tr>
+            )}
+          </tbody>
+        </table>
+      </div>
+    </motion.div>
+  );
+};
+
+export default TransactionTable;
+

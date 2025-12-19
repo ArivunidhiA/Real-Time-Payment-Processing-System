@@ -1,0 +1,327 @@
+import React, { useState, useEffect, useRef } from 'react';
+import Head from 'next/head';
+import { BackgroundGradientAnimation } from '@/components/ui/background-gradient-animation';
+import StatsCards from '../components/StatsCards';
+import VolumeChart from '../components/VolumeChart';
+import TransactionTable from '../components/TransactionTable';
+import { Play, Square, RefreshCw, Wifi, WifiOff } from 'lucide-react';
+import { motion } from 'framer-motion';
+
+interface Transaction {
+  id: number;
+  transaction_id: string;
+  user_id: number;
+  amount: number;
+  merchant: string;
+  status: string;
+  timestamp: string;
+}
+
+interface Stats {
+  approvalRate: number;
+  totalTransactions: number;
+  approvedTransactions: number;
+  declinedTransactions: number;
+  averageApprovedAmount: number;
+  totalVolume: number;
+  transactionsLastMinute: number;
+  volumePerMinute: Array<{
+    minute: string;
+    count: number;
+    volume: number;
+  }>;
+  systemMetrics: {
+    averageLatency: number;
+    uptime: number;
+    processedTransactions: number;
+    transactionsPerSecond: string;
+  };
+}
+
+export default function Dashboard() {
+  const [transactions, setTransactions] = useState<Transaction[]>([]);
+  const [stats, setStats] = useState<Stats | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [connectionStatus, setConnectionStatus] = useState<'connected' | 'disconnected' | 'error'>('disconnected');
+  const wsRef = useRef<WebSocket | null>(null);
+  const reconnectTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+
+  const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:3001';
+  const apiBaseUrl = `${backendUrl}/api`;
+
+  // WebSocket connection
+  const connectWebSocket = () => {
+    try {
+      const wsUrl = backendUrl.replace('http', 'ws');
+      wsRef.current = new WebSocket(`${wsUrl}/stream`);
+      
+      wsRef.current.onopen = () => {
+        console.log('WebSocket connected');
+        setConnectionStatus('connected');
+        if (reconnectTimeoutRef.current) {
+          clearTimeout(reconnectTimeoutRef.current);
+        }
+      };
+
+      wsRef.current.onmessage = (event) => {
+        try {
+          const message = JSON.parse(event.data);
+          if (message.type === 'transaction') {
+            // Add new transaction to the beginning of the list
+            setTransactions(prev => [message.data, ...prev.slice(0, 49)]);
+          }
+        } catch (error) {
+          console.error('Error parsing WebSocket message:', error);
+        }
+      };
+
+      wsRef.current.onclose = () => {
+        console.log('WebSocket disconnected');
+        setConnectionStatus('disconnected');
+        // Attempt to reconnect after 3 seconds
+        reconnectTimeoutRef.current = setTimeout(() => {
+          connectWebSocket();
+        }, 3000);
+      };
+
+      wsRef.current.onerror = (error) => {
+        console.error('WebSocket error:', error);
+        setConnectionStatus('error');
+      };
+    } catch (error) {
+      console.error('Failed to connect WebSocket:', error);
+      setConnectionStatus('error');
+    }
+  };
+
+  // Fetch initial data
+  const fetchData = async () => {
+    try {
+      setIsLoading(true);
+      
+      // Fetch transactions and stats in parallel
+      const [transactionsRes, statsRes] = await Promise.all([
+        fetch(`${apiBaseUrl}/transactions`),
+        fetch(`${apiBaseUrl}/stats`)
+      ]);
+
+      if (transactionsRes.ok) {
+        const transactionsData = await transactionsRes.json();
+        setTransactions(transactionsData.data || []);
+      }
+
+      if (statsRes.ok) {
+        const statsData = await statsRes.json();
+        setStats(statsData.data || null);
+      }
+    } catch (error) {
+      console.error('Error fetching data:', error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  // Generate a single transaction
+  const generateTransaction = async () => {
+    try {
+      const response = await fetch(`${apiBaseUrl}/transactions/generate`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+      
+      if (response.ok) {
+        // Refresh stats after generating a transaction
+        setTimeout(fetchData, 1000);
+      }
+    } catch (error) {
+      console.error('Error generating transaction:', error);
+    }
+  };
+
+  // Start/stop producer
+  const toggleProducer = async (action: 'start' | 'stop') => {
+    try {
+      const response = await fetch(`${apiBaseUrl}/transactions/producer/${action}`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+      
+      if (response.ok) {
+        console.log(`Producer ${action}ed successfully`);
+      }
+    } catch (error) {
+      console.error(`Error ${action}ing producer:`, error);
+    }
+  };
+
+  useEffect(() => {
+    fetchData();
+    connectWebSocket();
+
+    // Refresh stats every 10 seconds
+    const statsInterval = setInterval(() => {
+      fetch(`${apiBaseUrl}/stats`)
+        .then(res => res.json())
+        .then(data => setStats(data.data))
+        .catch(console.error);
+    }, 10000);
+
+    return () => {
+      if (wsRef.current) {
+        wsRef.current.close();
+      }
+      if (reconnectTimeoutRef.current) {
+        clearTimeout(reconnectTimeoutRef.current);
+      }
+      clearInterval(statsInterval);
+    };
+  }, []);
+
+  const getConnectionStatusColor = () => {
+    switch (connectionStatus) {
+      case 'connected':
+        return 'bg-green-500/20 text-green-400 border-green-500/30';
+      case 'disconnected':
+        return 'bg-yellow-500/20 text-yellow-400 border-yellow-500/30';
+      case 'error':
+        return 'bg-red-500/20 text-red-400 border-red-500/30';
+      default:
+        return 'bg-gray-500/20 text-gray-400 border-gray-500/30';
+    }
+  };
+
+  return (
+    <>
+      <Head>
+        <title>Real-Time Payment Dashboard</title>
+        <meta name="description" content="Real-time payment processing system dashboard" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <link rel="icon" href="/favicon.ico" />
+      </Head>
+
+      <BackgroundGradientAnimation
+        gradientBackgroundStart="rgb(15, 23, 42)"
+        gradientBackgroundEnd="rgb(30, 41, 59)"
+        firstColor="59, 130, 246"
+        secondColor="139, 92, 246"
+        thirdColor="34, 211, 238"
+        fourthColor="236, 72, 153"
+        fifthColor="251, 191, 36"
+        pointerColor="139, 92, 246"
+        size="80%"
+        blendingValue="hard-light"
+        interactive={true}
+        containerClassName="fixed inset-0"
+        className="relative z-10"
+      >
+        <div className="relative z-50 min-h-screen overflow-y-auto">
+          {/* Header */}
+          <motion.header
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="bg-white/5 backdrop-blur-xl border-b border-white/10 sticky top-0 z-50"
+          >
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+              <div className="flex justify-between items-center py-4">
+                <div>
+                  <h1 className="text-3xl font-bold bg-gradient-to-r from-white to-white/70 bg-clip-text text-transparent">
+                    Real-Time Payment Dashboard
+                  </h1>
+                  <p className="text-sm text-white/60 mt-1">Live transaction monitoring and analytics</p>
+                </div>
+                <div className="flex items-center gap-4">
+                  <motion.div
+                    whileHover={{ scale: 1.05 }}
+                    className={`px-4 py-2 rounded-lg border backdrop-blur-sm flex items-center gap-2 ${getConnectionStatusColor()}`}
+                  >
+                    {connectionStatus === 'connected' ? (
+                      <Wifi className="w-4 h-4" />
+                    ) : (
+                      <WifiOff className="w-4 h-4" />
+                    )}
+                    <span className="text-xs font-medium">
+                      {connectionStatus === 'connected' ? 'Live' : 'Offline'}
+                    </span>
+                  </motion.div>
+                  <motion.button
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                    onClick={generateTransaction}
+                    className="bg-blue-500/20 hover:bg-blue-500/30 text-blue-400 border border-blue-500/30 font-medium py-2 px-4 rounded-lg transition-all duration-200 flex items-center gap-2 backdrop-blur-sm"
+                  >
+                    <RefreshCw className="w-4 h-4" />
+                    Generate Transaction
+                  </motion.button>
+                </div>
+              </div>
+            </div>
+          </motion.header>
+
+          {/* Main Content */}
+          <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+            {/* Stats Cards */}
+            <StatsCards stats={stats} />
+
+            {/* Charts and Tables */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+              <VolumeChart data={stats?.volumePerMinute || null} />
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, delay: 0.2 }}
+                className="bg-white/10 backdrop-blur-lg rounded-xl border border-white/20 p-6 shadow-xl"
+              >
+                <h3 className="text-lg font-semibold text-white mb-4">System Controls</h3>
+                <div className="space-y-4">
+                  <div className="flex space-x-4">
+                    <motion.button
+                      whileHover={{ scale: 1.05 }}
+                      whileTap={{ scale: 0.95 }}
+                      onClick={() => toggleProducer('start')}
+                      className="flex-1 bg-green-500/20 hover:bg-green-500/30 text-green-400 border border-green-500/30 font-medium py-2 px-4 rounded-lg transition-all duration-200 flex items-center justify-center gap-2 backdrop-blur-sm"
+                    >
+                      <Play className="w-4 h-4" />
+                      Start Producer
+                    </motion.button>
+                    <motion.button
+                      whileHover={{ scale: 1.05 }}
+                      whileTap={{ scale: 0.95 }}
+                      onClick={() => toggleProducer('stop')}
+                      className="flex-1 bg-red-500/20 hover:bg-red-500/30 text-red-400 border border-red-500/30 font-medium py-2 px-4 rounded-lg transition-all duration-200 flex items-center justify-center gap-2 backdrop-blur-sm"
+                    >
+                      <Square className="w-4 h-4" />
+                      Stop Producer
+                    </motion.button>
+                  </div>
+                  <div className="text-sm text-white/70 space-y-2 pt-4 border-t border-white/10">
+                    <p><strong className="text-white">Total Transactions:</strong> {stats?.totalTransactions || 0}</p>
+                    <p><strong className="text-white">Approved:</strong> {stats?.approvedTransactions || 0}</p>
+                    <p><strong className="text-white">Declined:</strong> {stats?.declinedTransactions || 0}</p>
+                    <p><strong className="text-white">Total Volume:</strong> ${(stats?.totalVolume || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</p>
+                  </div>
+                </div>
+              </motion.div>
+            </div>
+
+            {/* Transaction Table */}
+            <TransactionTable transactions={transactions} isLoading={isLoading} />
+          </main>
+
+          {/* Footer */}
+          <footer className="bg-white/5 backdrop-blur-xl border-t border-white/10 mt-12">
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+              <div className="text-center text-sm text-white/60">
+                <p>Real-Time Payment Processing System - Built with Next.js, Node.js, Kafka, and PostgreSQL</p>
+              </div>
+            </div>
+          </footer>
+        </div>
+      </BackgroundGradientAnimation>
+    </>
+  );
+}
+
