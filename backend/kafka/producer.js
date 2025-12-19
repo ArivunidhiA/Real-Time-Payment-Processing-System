@@ -1,11 +1,27 @@
 const { Kafka } = require('kafkajs');
 require('dotenv').config();
 
+// Check if using Aiven SSL certificates
+const useAivenSSL = process.env.KAFKA_USE_SSL === 'true';
+
+// Configure SSL for Aiven
+let sslConfig = false;
+if (useAivenSSL && process.env.KAFKA_CA_CERT) {
+  sslConfig = {
+    rejectUnauthorized: true,
+    ca: [process.env.KAFKA_CA_CERT],
+    cert: process.env.KAFKA_CLIENT_CERT,
+    key: process.env.KAFKA_CLIENT_KEY
+  };
+} else if (process.env.NODE_ENV === 'production' && !useAivenSSL) {
+  sslConfig = true; // Generic SSL for other providers
+}
+
 const kafka = new Kafka({
   clientId: 'payment-producer',
   brokers: [process.env.KAFKA_BROKER],
-  ssl: process.env.NODE_ENV === 'production',
-  sasl: process.env.KAFKA_USERNAME ? {
+  ssl: sslConfig,
+  sasl: !useAivenSSL && process.env.KAFKA_USERNAME ? {
     mechanism: 'plain',
     username: process.env.KAFKA_USERNAME,
     password: process.env.KAFKA_PASSWORD
