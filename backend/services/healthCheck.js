@@ -1,5 +1,4 @@
 const { pool } = require('../db/db');
-const { Kafka } = require('kafkajs');
 const Redis = require('ioredis');
 const axios = require('axios');
 
@@ -31,36 +30,24 @@ async function checkDatabase() {
 }
 
 /**
- * Check Kafka connection
+ * Check transaction processor
  */
-async function checkKafka() {
+async function checkTransactionProcessor() {
   try {
-    const kafka = new Kafka({
-      clientId: 'health-check',
-      brokers: [process.env.KAFKA_BROKER],
-      ssl: process.env.NODE_ENV === 'production',
-      sasl: process.env.KAFKA_USERNAME ? {
-        mechanism: 'plain',
-        username: process.env.KAFKA_USERNAME,
-        password: process.env.KAFKA_PASSWORD
-      } : undefined,
-      connectionTimeout: 5000,
-      requestTimeout: 5000
-    });
+    const processor = global.transactionProcessor;
+    if (!processor) {
+      return {
+        status: 'not_initialized',
+        message: 'Transaction processor not initialized'
+      };
+    }
 
-    const admin = kafka.admin();
-    await admin.connect();
-    
-    const startTime = Date.now();
-    const topics = await admin.listTopics();
-    const responseTime = Date.now() - startTime;
-    
-    await admin.disconnect();
-
+    const stats = processor.getStats();
     return {
       status: 'ok',
-      responseTime: `${responseTime}ms`,
-      topicsCount: topics.length
+      isRunning: stats.isRunning,
+      processedCount: stats.processedCount,
+      transactionsPerSecond: parseFloat(stats.transactionsPerSecond).toFixed(2)
     };
   } catch (error) {
     return {
@@ -163,7 +150,7 @@ async function checkMonitoring() {
 async function comprehensiveHealthCheck() {
   const checks = {
     database: await checkDatabase(),
-    kafka: await checkKafka(),
+    transactionProcessor: await checkTransactionProcessor(),
     redis: await checkRedis(),
     paymentGateway: await checkPaymentGateway(),
     monitoring: await checkMonitoring(),
@@ -171,7 +158,7 @@ async function comprehensiveHealthCheck() {
   };
 
   // Determine overall health
-  const criticalServices = ['database', 'kafka'];
+  const criticalServices = ['database'];
   const isHealthy = criticalServices.every(
     service => checks[service]?.status === 'ok'
   );
@@ -209,7 +196,7 @@ async function simpleHealthCheck() {
 
 module.exports = {
   checkDatabase,
-  checkKafka,
+  checkTransactionProcessor,
   checkRedis,
   checkPaymentGateway,
   checkMonitoring,

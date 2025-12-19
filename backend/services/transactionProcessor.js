@@ -1,68 +1,44 @@
-const { Kafka } = require('kafkajs');
 const { db } = require('../db/db');
-const fraudDetection = require('../services/fraudDetection');
-const paymentGateway = require('../services/paymentGateway');
+const fraudDetection = require('./fraudDetection');
+const paymentGateway = require('./paymentGateway');
 const logger = require('../utils/logger');
-require('dotenv').config();
 
-// Check if using Aiven SSL certificates
-const useAivenSSL = process.env.KAFKA_USE_SSL === 'true';
+// Sample merchants for realistic transaction data
+const merchants = [
+  'Amazon', 'Starbucks', 'Uber', 'Netflix', 'Spotify', 'Apple Store',
+  'Google Play', 'Target', 'Walmart', 'McDonald\'s', 'Subway',
+  'Best Buy', 'Home Depot', 'Costco', 'Whole Foods', 'CVS Pharmacy',
+  'Shell', 'Exxon', 'Chevron', 'Delta Airlines', 'American Airlines'
+];
 
-// Configure SSL for Aiven
-let sslConfig = false;
-if (useAivenSSL && process.env.KAFKA_CA_CERT) {
-  sslConfig = {
-    rejectUnauthorized: true,
-    ca: [process.env.KAFKA_CA_CERT],
-    cert: process.env.KAFKA_CLIENT_CERT,
-    key: process.env.KAFKA_CLIENT_KEY
-  };
-} else if (process.env.NODE_ENV === 'production' && !useAivenSSL) {
-  sslConfig = true; // Generic SSL for other providers
-}
+// Sample user IDs
+const userIds = [1, 2, 3, 4, 5];
 
-const kafka = new Kafka({
-  clientId: 'payment-consumer',
-  brokers: [process.env.KAFKA_BROKER],
-  ssl: sslConfig,
-  sasl: !useAivenSSL && process.env.KAFKA_USERNAME ? {
-    mechanism: 'plain',
-    username: process.env.KAFKA_USERNAME,
-    password: process.env.KAFKA_PASSWORD
-  } : undefined
-});
-
-const consumer = kafka.consumer({ groupId: 'payment-processing-group' });
-
-class TransactionConsumer {
+class TransactionProcessor {
   constructor(websocketServer = null) {
     this.websocketServer = websocketServer;
     this.isRunning = false;
+    this.intervalId = null;
     this.processedCount = 0;
     this.startTime = Date.now();
   }
 
-  async connect() {
-    try {
-      await consumer.connect();
-      await consumer.subscribe({ 
-        topic: process.env.KAFKA_TOPIC || 'transactions',
-        fromBeginning: false 
-      });
-      console.log('Kafka consumer connected and subscribed');
-    } catch (error) {
-      console.error('Failed to connect Kafka consumer:', error);
-      throw error;
-    }
-  }
+  generateRandomTransaction() {
+    const transactionId = `txn_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+    const userId = userIds[Math.floor(Math.random() * userIds.length)];
+    const amount = parseFloat((Math.random() * 10000).toFixed(2)); // $0 - $10,000
+    const merchant = merchants[Math.floor(Math.random() * merchants.length)];
+    const timestamp = new Date().toISOString();
+    const status = 'PENDING';
 
-  async disconnect() {
-    try {
-      await consumer.disconnect();
-      console.log('Kafka consumer disconnected');
-    } catch (error) {
-      console.error('Failed to disconnect Kafka consumer:', error);
-    }
+    return {
+      transactionId,
+      userId,
+      amount,
+      merchant,
+      timestamp,
+      status
+    };
   }
 
   // Enhanced fraud detection using fraud detection service
@@ -72,7 +48,6 @@ class TransactionConsumer {
       return analysis;
     } catch (error) {
       logger.logError(error, { transactionId: transaction.transactionId });
-      // On error, default to low risk
       return {
         isFraudulent: false,
         riskScore: 0.1,
@@ -152,7 +127,6 @@ class TransactionConsumer {
               logger.info(`Transaction ${transaction.transactionId} declined by gateway: ${transaction.declineReason}`);
             }
           } catch (gatewayError) {
-            // Gateway error - decline transaction
             transaction.status = 'DECLINED';
             transaction.declineReason = 'GATEWAY_ERROR';
             transaction.metadata = {
@@ -194,7 +168,6 @@ class TransactionConsumer {
         stack: error.stack
       };
       
-      // Still try to save the error transaction
       try {
         await db.insertTransaction(transaction);
       } catch (saveError) {
@@ -221,43 +194,46 @@ class TransactionConsumer {
     }
   }
 
-  // Start consuming messages
-  async startConsuming() {
+  // Start generating and processing transactions
+  startProducing(intervalMs = 2000) {
     if (this.isRunning) {
-      console.log('Consumer is already running');
+      console.log('Transaction processor is already running');
       return;
     }
 
     this.isRunning = true;
     this.startTime = Date.now();
-    console.log('Starting transaction consumer...');
+    console.log(`Starting transaction processor (every ${intervalMs}ms)`);
 
-    await consumer.run({
-      eachMessage: async ({ topic, partition, message }) => {
-        try {
-          const transaction = JSON.parse(message.value.toString());
-          console.log(`Processing transaction: ${transaction.transactionId}`);
-          
-          await this.processTransaction(transaction);
-        } catch (error) {
-          console.error('Error processing message:', error);
-        }
-      }
-    });
+    this.intervalId = setInterval(async () => {
+      const transaction = this.generateRandomTransaction();
+      await this.processTransaction(transaction);
+    }, intervalMs);
   }
 
-  // Stop consuming messages
-  stopConsuming() {
+  // Stop generating transactions
+  stopProducing() {
     if (!this.isRunning) {
-      console.log('Consumer is not running');
+      console.log('Transaction processor is not running');
       return;
     }
 
     this.isRunning = false;
-    console.log('Transaction consumer stopped');
+    if (this.intervalId) {
+      clearInterval(this.intervalId);
+      this.intervalId = null;
+    }
+    console.log('Transaction processor stopped');
   }
 
-  // Get consumer statistics
+  // Send a single transaction (useful for testing)
+  async sendSingleTransaction() {
+    const transaction = this.generateRandomTransaction();
+    await this.processTransaction(transaction);
+    return transaction;
+  }
+
+  // Get processor statistics
   getStats() {
     const uptime = Date.now() - this.startTime;
     const transactionsPerSecond = this.processedCount / (uptime / 1000);
@@ -271,4 +247,5 @@ class TransactionConsumer {
   }
 }
 
-module.exports = TransactionConsumer;
+module.exports = TransactionProcessor;
+

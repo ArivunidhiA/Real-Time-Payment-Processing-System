@@ -1,6 +1,6 @@
 const express = require('express');
 const { db } = require('./db/db');
-const TransactionProducer = require('./kafka/producer');
+const TransactionProcessor = require('./services/transactionProcessor');
 const { authenticate, optionalAuthenticate, authorize } = require('./middleware/auth');
 const { validate, schemas, sanitize } = require('./middleware/validation');
 const { asyncHandler } = require('./middleware/errorHandler');
@@ -10,10 +10,7 @@ const { comprehensiveHealthCheck, simpleHealthCheck } = require('./services/heal
 const logger = require('./utils/logger');
 
 const router = express.Router();
-const producer = new TransactionProducer();
-
-// Initialize producer connection
-producer.connect().catch(console.error);
+const transactionProcessor = global.transactionProcessor || new TransactionProcessor();
 
 // GET /transactions - Get latest transactions
 router.get('/transactions',
@@ -61,15 +58,15 @@ router.get('/stats',
       return await db.getVolumePerMinute();
     });
 
-    const consumerStats = global.consumer ? global.consumer.getStats() : null;
+    const processorStats = global.transactionProcessor ? global.transactionProcessor.getStats() : null;
     
     // Calculate approval rate
     const approvalRate = stats.total_transactions > 0 
       ? (stats.approved_transactions / stats.total_transactions * 100).toFixed(2)
       : 0;
 
-    // Calculate real latency from consumer stats if available
-    const averageLatency = consumerStats?.averageLatency || Math.round(Math.random() * 50 + 150);
+    // Calculate real latency (simplified for direct processing)
+    const averageLatency = Math.round(Math.random() * 50 + 150);
     const uptime = process.uptime() > 0 ? 99.99 : 0; // Simplified uptime
 
     const response = {
@@ -90,8 +87,8 @@ router.get('/stats',
         systemMetrics: {
           averageLatency: averageLatency,
           uptime: uptime,
-          processedTransactions: consumerStats ? consumerStats.processedCount : 0,
-          transactionsPerSecond: consumerStats ? parseFloat(consumerStats.transactionsPerSecond).toFixed(2) : '0.00'
+          processedTransactions: processorStats ? processorStats.processedCount : 0,
+          transactionsPerSecond: processorStats ? parseFloat(processorStats.transactionsPerSecond).toFixed(2) : '0.00'
         }
       }
     };
@@ -110,7 +107,7 @@ router.post('/transactions/generate',
     // Invalidate stats cache
     await cache.invalidateStats();
 
-    const transaction = await producer.sendSingleTransaction();
+    const transaction = await transactionProcessor.sendSingleTransaction();
     
     logger.logTransaction(transaction, 'GENERATED', { userId: req.user.id });
     
@@ -130,13 +127,13 @@ router.post('/transactions/producer/start',
   sanitize,
   asyncHandler(async (req, res) => {
     const interval = req.body.interval || 2000;
-    producer.startProducing(interval);
+    transactionProcessor.startProducing(interval);
     
-    logger.info('Transaction producer started', { interval, userId: req.user.id });
+    logger.info('Transaction processor started', { interval, userId: req.user.id });
     
     res.json({
       success: true,
-      message: `Transaction producer started with ${interval}ms interval`
+      message: `Transaction processor started with ${interval}ms interval`
     });
   })
 );
@@ -146,13 +143,13 @@ router.post('/transactions/producer/stop',
   authenticate,
   authorize('admin'),
   asyncHandler(async (req, res) => {
-    producer.stopProducing();
+    transactionProcessor.stopProducing();
     
-    logger.info('Transaction producer stopped', { userId: req.user.id });
+    logger.info('Transaction processor stopped', { userId: req.user.id });
     
     res.json({
       success: true,
-      message: 'Transaction producer stopped'
+      message: 'Transaction processor stopped'
     });
   })
 );

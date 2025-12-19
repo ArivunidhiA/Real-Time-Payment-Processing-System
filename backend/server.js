@@ -17,8 +17,7 @@ if (process.env.SENTRY_DSN) {
 }
 
 const routes = require('./routes');
-const TransactionProducer = require('./kafka/producer');
-const TransactionConsumer = require('./kafka/consumer');
+const TransactionProcessor = require('./services/transactionProcessor');
 const { errorHandler, notFoundHandler } = require('./middleware/errorHandler');
 const logger = require('./utils/logger');
 
@@ -131,32 +130,24 @@ wss.on('connection', (ws, req) => {
   });
 });
 
-// Initialize Kafka components
-let producer, consumer;
+// Initialize transaction processor
+let transactionProcessor;
 
-async function initializeKafka() {
+function initializeTransactionProcessor() {
   try {
-    // Initialize producer
-    producer = new TransactionProducer();
-    await producer.connect();
+    // Initialize transaction processor with WebSocket server
+    transactionProcessor = new TransactionProcessor(wss);
     
-    // Initialize consumer with WebSocket server
-    consumer = new TransactionConsumer(wss);
-    await consumer.connect();
+    // Make processor globally accessible for stats
+    global.transactionProcessor = transactionProcessor;
     
-    // Make consumer globally accessible for stats
-    global.consumer = consumer;
+    // Start processing transactions (every 2 seconds)
+    transactionProcessor.startProducing(2000);
     
-    // Start consuming messages
-    await consumer.startConsuming();
-    
-    // Start producing transactions (every 2 seconds)
-    producer.startProducing(2000);
-    
-    logger.info('Kafka components initialized successfully');
+    logger.info('Transaction processor initialized successfully');
   } catch (error) {
-    logger.logError(error, { service: 'kafka_initialization' });
-    // Don't exit the process, allow the server to start without Kafka for development
+    logger.logError(error, { service: 'transaction_processor_initialization' });
+    // Don't exit the process, allow the server to start without processor for development
   }
 }
 
@@ -174,15 +165,9 @@ async function gracefulShutdown(signal) {
     client.close();
   });
   
-  // Stop Kafka components
-  if (producer) {
-    producer.stopProducing();
-    await producer.disconnect().catch(err => logger.logError(err));
-  }
-  
-  if (consumer) {
-    consumer.stopConsuming();
-    await consumer.disconnect().catch(err => logger.logError(err));
+  // Stop transaction processor
+  if (transactionProcessor) {
+    transactionProcessor.stopProducing();
   }
   
   // Give time for cleanup
@@ -205,8 +190,8 @@ server.listen(PORT, () => {
   logger.info(`Keep-alive: http://localhost:${PORT}/api/keep-alive`);
   logger.info(`Environment: ${process.env.NODE_ENV || 'development'}`);
   
-  // Initialize Kafka components after server starts
-  initializeKafka();
+  // Initialize transaction processor after server starts
+  initializeTransactionProcessor();
   
   // Start keep-alive service if enabled (prevents Render spin-down)
   if (process.env.ENABLE_KEEP_ALIVE === 'true' && process.env.SERVICE_URL) {
