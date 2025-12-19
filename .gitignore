@@ -76,3 +76,9 @@ backend/logs/
 # Database
 *.sqlite
 *.db
+
+# Certificate files (security)
+*.pem
+*.cert
+*.key
+*.crt
