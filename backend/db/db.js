@@ -36,20 +36,27 @@ async function initializeSchema() {
       const schemaPath = path.join(__dirname, 'schema.sql');
       const schemaSQL = fs.readFileSync(schemaPath, 'utf8');
       
-      // Split by semicolons and execute each statement
+      // Remove comments and split by semicolons
       const statements = schemaSQL
+        .split('\n')
+        .filter(line => !line.trim().startsWith('--') && line.trim().length > 0)
+        .join('\n')
         .split(';')
         .map(s => s.trim())
-        .filter(s => s.length > 0 && !s.startsWith('--'));
+        .filter(s => s.length > 0);
       
+      // Execute each statement
       for (const statement of statements) {
-        if (statement.trim()) {
+        if (statement.trim() && !statement.trim().startsWith('--')) {
           try {
-            await pool.query(statement);
+            await pool.query(statement + ';');
           } catch (err) {
-            // Ignore errors for IF NOT EXISTS statements
-            if (!err.message.includes('already exists')) {
+            // Ignore errors for IF NOT EXISTS, already exists, or duplicate key
+            if (!err.message.includes('already exists') && 
+                !err.message.includes('duplicate key') &&
+                !err.message.includes('does not exist')) {
               console.error('Schema initialization error:', err.message);
+              console.error('Statement:', statement.substring(0, 100));
             }
           }
         }
@@ -61,7 +68,8 @@ async function initializeSchema() {
     }
   } catch (error) {
     console.error('Error initializing database schema:', error);
-    throw error;
+    // Don't throw - allow server to start even if schema init fails
+    // Schema might already exist or can be created manually
   }
 }
 

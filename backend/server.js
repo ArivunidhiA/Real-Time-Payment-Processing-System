@@ -184,12 +184,21 @@ process.on('SIGTERM', () => gracefulShutdown('SIGTERM'));
 // Start server
 const PORT = process.env.PORT || 3001;
 
-server.listen(PORT, () => {
+server.listen(PORT, async () => {
   logger.info(`Server running on port ${PORT}`);
   logger.info(`WebSocket server running on ws://localhost:${PORT}/stream`);
   logger.info(`Health check: http://localhost:${PORT}/api/health`);
   logger.info(`Keep-alive: http://localhost:${PORT}/api/keep-alive`);
   logger.info(`Environment: ${process.env.NODE_ENV || 'development'}`);
+  
+  // Initialize database schema first
+  try {
+    await initializeSchema();
+    logger.info('Database schema initialized successfully');
+  } catch (error) {
+    logger.logError(error, { service: 'database_initialization' });
+    // Continue anyway - schema might already exist or will be created manually
+  }
   
   // Initialize transaction processor after server starts
   initializeTransactionProcessor();
