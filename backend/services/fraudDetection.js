@@ -1,4 +1,4 @@
-const { db } = require('../db/db');
+const { db, pool } = require('../db/db');
 const logger = require('../utils/logger');
 const Redis = require('ioredis');
 
@@ -126,7 +126,7 @@ class FraudDetectionService {
 
       // If not in cache, query database
       if (transactionCount === 0) {
-        const result = await db.pool.query(
+        const result = await pool.query(
           `SELECT COUNT(*) as count 
            FROM transactions 
            WHERE user_id = $1 
@@ -210,7 +210,7 @@ class FraudDetectionService {
   async checkMerchant(transaction) {
     try {
       // Check if merchant has high decline rate
-      const result = await db.pool.query(
+      const result = await pool.query(
         `SELECT 
            COUNT(*) as total,
            COUNT(CASE WHEN status = 'DECLINED' THEN 1 END) as declined
@@ -273,7 +273,7 @@ class FraudDetectionService {
   async checkUserBehavior(transaction) {
     try {
       // Check if user has recent declined transactions
-      const result = await db.pool.query(
+      const result = await pool.query(
         `SELECT COUNT(*) as count 
          FROM transactions 
          WHERE user_id = $1 
