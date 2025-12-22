@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import Head from 'next/head';
-import { BackgroundGradientAnimation } from '@/components/ui/background-gradient-animation';
+import { DottedSurface } from '@/components/ui/dotted-surface';
 import StatsCards from '../components/StatsCards';
 import VolumeChart from '../components/VolumeChart';
 import TransactionTable from '../components/TransactionTable';
@@ -203,22 +203,8 @@ export default function Dashboard() {
         <link rel="icon" href="/favicon.ico" />
       </Head>
 
-      <BackgroundGradientAnimation
-        gradientBackgroundStart="rgb(15, 23, 42)"
-        gradientBackgroundEnd="rgb(30, 41, 59)"
-        firstColor="59, 130, 246"
-        secondColor="139, 92, 246"
-        thirdColor="34, 211, 238"
-        fourthColor="236, 72, 153"
-        fifthColor="251, 191, 36"
-        pointerColor="139, 92, 246"
-        size="80%"
-        blendingValue="hard-light"
-        interactive={true}
-        containerClassName="fixed inset-0"
-        className="relative z-10"
-      >
-        <div className="relative z-50 min-h-screen overflow-y-auto">
+      <DottedSurface />
+      <div className="relative z-10 min-h-screen overflow-y-auto bg-gradient-to-b from-slate-900 via-slate-800 to-slate-900">
           {/* Header */}
           <motion.header
             initial={{ opacity: 0, y: -20 }}
@@ -320,7 +306,7 @@ export default function Dashboard() {
             </div>
           </footer>
         </div>
-      </BackgroundGradientAnimation>
+      </div>
     </>
   );
 }
