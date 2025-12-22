@@ -78,7 +78,7 @@ const StatsCards: React.FC<StatsCardsProps> = ({ stats }) => {
           >
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-semibold text-white mb-2">{card.title}</p>
+                <p className="text-sm font-bold text-white mb-2" style={{ color: '#ffffff !important' }}>{card.title}</p>
                 <p className={`text-3xl font-bold ${card.color} drop-shadow-lg`}>{card.value}</p>
               </div>
               <div className={`w-14 h-14 ${card.bgColor} rounded-xl flex items-center justify-center border ${card.borderColor}`}>

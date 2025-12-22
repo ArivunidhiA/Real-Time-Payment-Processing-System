@@ -120,17 +120,17 @@ const TransactionTable: React.FC<TransactionTableProps> = ({ transactions, isLoa
       transition={{ duration: 0.5 }}
       className="bg-white/5 backdrop-blur-lg rounded-xl border border-white/20 p-6 shadow-xl"
     >
-      <h3 className="text-lg font-bold text-white mb-6">Recent Transactions</h3>
+      <h3 className="text-lg font-bold mb-6" style={{ color: '#ffffff' }}>Recent Transactions</h3>
       <div className="overflow-x-auto">
         <table className="min-w-full bg-transparent">
           <thead className="bg-transparent">
             <tr className="border-b border-white/20">
-              <th className="px-6 py-3 text-left text-xs font-semibold text-white uppercase tracking-wider">ID</th>
-              <th className="px-6 py-3 text-left text-xs font-semibold text-white uppercase tracking-wider">User</th>
-              <th className="px-6 py-3 text-left text-xs font-semibold text-white uppercase tracking-wider">Amount</th>
-              <th className="px-6 py-3 text-left text-xs font-semibold text-white uppercase tracking-wider">Merchant</th>
-              <th className="px-6 py-3 text-left text-xs font-semibold text-white uppercase tracking-wider">Status</th>
-              <th className="px-6 py-3 text-left text-xs font-semibold text-white uppercase tracking-wider">Time</th>
+              <th className="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider" style={{ color: '#ffffff' }}>ID</th>
+              <th className="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider" style={{ color: '#ffffff' }}>User</th>
+              <th className="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider" style={{ color: '#ffffff' }}>Amount</th>
+              <th className="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider" style={{ color: '#ffffff' }}>Merchant</th>
+              <th className="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider" style={{ color: '#ffffff' }}>Status</th>
+              <th className="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider" style={{ color: '#ffffff' }}>Time</th>
             </tr>
           </thead>
           <tbody>
@@ -143,16 +143,16 @@ const TransactionTable: React.FC<TransactionTableProps> = ({ transactions, isLoa
                   transition={{ duration: 0.3, delay: index * 0.05 }}
                   className="border-b border-white/5 hover:bg-white/5 transition-colors"
                 >
-                  <td className="px-6 py-4 whitespace-nowrap text-sm font-mono text-white font-medium">
+                  <td className="px-6 py-4 whitespace-nowrap text-sm font-mono font-medium" style={{ color: '#ffffff' }}>
                     {transaction.transaction_id?.substring(0, 12)}...
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-white font-medium">
+                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium" style={{ color: '#ffffff' }}>
                     User {transaction.user_id}
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm font-bold text-white">
+                  <td className="px-6 py-4 whitespace-nowrap text-sm font-bold" style={{ color: '#ffffff' }}>
                     {formatAmount(transaction.amount)}
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-white font-medium">
+                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium" style={{ color: '#ffffff' }}>
                     {transaction.merchant}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
@@ -161,7 +161,7 @@ const TransactionTable: React.FC<TransactionTableProps> = ({ transactions, isLoa
                       {transaction.status}
                     </span>
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-white font-medium">
+                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium" style={{ color: '#ffffff' }}>
                     {formatTimestamp(transaction.timestamp)}
                   </td>
                 </motion.tr>
