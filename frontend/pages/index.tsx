@@ -53,7 +53,13 @@ export default function Dashboard() {
   // WebSocket connection
   const connectWebSocket = () => {
     try {
-      const wsUrl = backendUrl.replace('http', 'ws');
+      // Fix: Handle both http and https for WebSocket URL
+      let wsUrl = backendUrl;
+      if (wsUrl.startsWith('https://')) {
+        wsUrl = wsUrl.replace('https://', 'wss://');
+      } else if (wsUrl.startsWith('http://')) {
+        wsUrl = wsUrl.replace('http://', 'ws://');
+      }
       wsRef.current = new WebSocket(`${wsUrl}/stream`);
       
       wsRef.current.onopen = () => {
@@ -70,6 +76,15 @@ export default function Dashboard() {
           if (message.type === 'transaction') {
             // Add new transaction to the beginning of the list
             setTransactions(prev => [message.data, ...prev.slice(0, 49)]);
+            // Refresh stats when new transaction arrives
+            fetch(`${apiBaseUrl}/stats`)
+              .then(res => res.json())
+              .then(data => {
+                if (data.success && data.data) {
+                  setStats(data.data);
+                }
+              })
+              .catch(err => console.error('Error refreshing stats:', err));
           }
         } catch (error) {
           console.error('Error parsing WebSocket message:', error);
@@ -130,23 +145,31 @@ export default function Dashboard() {
         headers: {
           'Content-Type': 'application/json',
         },
+        mode: 'cors',
       });
       
-      const data = await response.json();
-      
-      if (response.ok) {
-        console.log('Transaction generated:', data);
-        // Refresh stats and transactions after generating
-        setTimeout(() => {
-          fetchData();
-        }, 500);
-      } else {
-        console.error('Failed to generate transaction:', data);
-        alert(`Error: ${data.error || 'Failed to generate transaction'}`);
+      if (!response.ok) {
+        const errorText = await response.text();
+        let errorData;
+        try {
+          errorData = JSON.parse(errorText);
+        } catch {
+          errorData = { error: errorText || `HTTP ${response.status}: ${response.statusText}` };
+        }
+        console.error('Failed to generate transaction:', errorData);
+        alert(`Error: ${errorData.error || 'Failed to generate transaction'}`);
+        return;
       }
-    } catch (error) {
+      
+      const data = await response.json();
+      console.log('Transaction generated:', data);
+      // Refresh stats and transactions after generating
+      setTimeout(() => {
+        fetchData();
+      }, 500);
+    } catch (error: any) {
       console.error('Error generating transaction:', error);
-      alert('Error generating transaction. Please check console for details.');
+      alert(`Error generating transaction: ${error.message || 'Network error. Please check console for details.'}`);
     }
   };
 
@@ -158,24 +181,32 @@ export default function Dashboard() {
         headers: {
           'Content-Type': 'application/json',
         },
+        mode: 'cors',
         body: action === 'start' ? JSON.stringify({ interval: 2000 }) : undefined,
       });
       
-      const data = await response.json();
-      
-      if (response.ok) {
-        console.log(`Producer ${action}ed successfully:`, data.message);
-        // Refresh stats to show updated status
-        setTimeout(() => {
-          fetchData();
-        }, 500);
-      } else {
-        console.error(`Failed to ${action} producer:`, data);
-        alert(`Error: ${data.error || `Failed to ${action} producer`}`);
+      if (!response.ok) {
+        const errorText = await response.text();
+        let errorData;
+        try {
+          errorData = JSON.parse(errorText);
+        } catch {
+          errorData = { error: errorText || `HTTP ${response.status}: ${response.statusText}` };
+        }
+        console.error(`Failed to ${action} producer:`, errorData);
+        alert(`Error: ${errorData.error || `Failed to ${action} producer`}`);
+        return;
       }
-    } catch (error) {
+      
+      const data = await response.json();
+      console.log(`Producer ${action}ed successfully:`, data.message);
+      // Refresh stats to show updated status
+      setTimeout(() => {
+        fetchData();
+      }, 500);
+    } catch (error: any) {
       console.error(`Error ${action}ing producer:`, error);
-      alert(`Error ${action}ing producer. Please check console for details.`);
+      alert(`Error ${action}ing producer: ${error.message || 'Network error. Please check console for details.'}`);
     }
   };
 
