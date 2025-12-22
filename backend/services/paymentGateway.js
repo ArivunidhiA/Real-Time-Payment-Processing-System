@@ -221,8 +221,8 @@ class PaymentGateway {
     // Simulate processing delay
     await new Promise(resolve => setTimeout(resolve, 50 + Math.random() * 100));
     
-    // Simulate 95% approval rate
-    const approved = Math.random() > 0.05;
+    // Simulate 90% approval rate for demo (more realistic)
+    const approved = Math.random() > 0.10;
     
     return {
       gateway: 'mock',

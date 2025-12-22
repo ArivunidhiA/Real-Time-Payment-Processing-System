@@ -26,7 +26,16 @@ class TransactionProcessor {
   generateRandomTransaction() {
     const transactionId = `txn_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
     const userId = userIds[Math.floor(Math.random() * userIds.length)];
-    const amount = parseFloat((Math.random() * 10000).toFixed(2)); // $0 - $10,000
+    // Generate more realistic amounts: 70% small ($1-$100), 25% medium ($100-$500), 5% large ($500-$1000)
+    const rand = Math.random();
+    let amount;
+    if (rand < 0.7) {
+      amount = parseFloat((1 + Math.random() * 99).toFixed(2)); // $1 - $100
+    } else if (rand < 0.95) {
+      amount = parseFloat((100 + Math.random() * 400).toFixed(2)); // $100 - $500
+    } else {
+      amount = parseFloat((500 + Math.random() * 500).toFixed(2)); // $500 - $1000
+    }
     const merchant = merchants[Math.floor(Math.random() * merchants.length)];
     const timestamp = new Date().toISOString();
     const status = 'PENDING';

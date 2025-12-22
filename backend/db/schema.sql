@@ -62,11 +62,11 @@ CREATE INDEX IF NOT EXISTS idx_audit_logs_created_at ON audit_logs(created_at);
 CREATE INDEX IF NOT EXISTS idx_audit_logs_user_id ON audit_logs(user_id);
 CREATE INDEX IF NOT EXISTS idx_users_email ON users(email);
 
--- Insert some sample users with balances
+-- Insert some sample users with balances (increased for demo)
 INSERT INTO users (id, email, balance, role) VALUES 
-(1, 'user1@example.com', 10000.00, 'user'),
-(2, 'user2@example.com', 5000.00, 'user'),
-(3, 'user3@example.com', 15000.00, 'user'),
-(4, 'user4@example.com', 2500.00, 'user'),
-(5, 'admin@example.com', 8000.00, 'admin')
-ON CONFLICT (id) DO NOTHING;
+(1, 'user1@example.com', 50000.00, 'user'),
+(2, 'user2@example.com', 30000.00, 'user'),
+(3, 'user3@example.com', 75000.00, 'user'),
+(4, 'user4@example.com', 20000.00, 'user'),
+(5, 'admin@example.com', 100000.00, 'admin')
+ON CONFLICT (id) DO UPDATE SET balance = EXCLUDED.balance;

@@ -9,7 +9,8 @@ if (process.env.REDIS_URL) {
 
 class FraudDetectionService {
   constructor() {
-    this.riskThreshold = parseFloat(process.env.FRAUD_RISK_THRESHOLD || '0.7');
+    // Lower threshold for demo - only flag very suspicious transactions
+    this.riskThreshold = parseFloat(process.env.FRAUD_RISK_THRESHOLD || '0.85');
     this.velocityWindow = parseInt(process.env.VELOCITY_WINDOW_MINUTES || '60');
   }
 
@@ -180,21 +181,21 @@ class FraudDetectionService {
     let isFlagged = false;
     let reason = null;
 
-    // Very high amount
-    if (transaction.amount > 10000) {
-      riskScore = 0.3;
+    // Only flag very high amounts for demo purposes
+    if (transaction.amount > 5000) {
+      riskScore = 0.2;
       isFlagged = true;
       reason = `Very high transaction amount: $${transaction.amount}`;
-    } else if (transaction.amount > 5000) {
-      riskScore = 0.15;
-      isFlagged = true;
+    } else if (transaction.amount > 2000) {
+      riskScore = 0.1;
+      isFlagged = false;
       reason = `High transaction amount: $${transaction.amount}`;
     }
 
-    // Unusual amount patterns (e.g., round numbers)
-    if (transaction.amount % 100 === 0 && transaction.amount > 1000) {
-      riskScore += 0.1;
-      if (!isFlagged) {
+    // Less strict on round numbers for demo
+    if (transaction.amount % 100 === 0 && transaction.amount > 2000) {
+      riskScore += 0.05;
+      if (!isFlagged && transaction.amount > 5000) {
         isFlagged = true;
         reason = `Unusual round number amount: $${transaction.amount}`;
       }
