@@ -225,12 +225,12 @@ export default function Dashboard() {
       </Head>
 
       <WavyBackground 
-        backgroundFill="rgba(0, 0, 0, 0.8)"
-        waveOpacity={0.8}
+        backgroundFill="rgba(0, 0, 0, 0.9)"
+        waveOpacity={0.9}
         blur={10}
         speed="fast"
       />
-      <div className="relative z-10 min-h-screen overflow-y-auto bg-transparent">
+      <div className="relative z-10 min-h-screen overflow-y-auto">
           {/* Header */}
           <motion.header
             initial={{ opacity: 0, y: -20 }}

@@ -47,11 +47,11 @@ export const WavyBackground = ({
   };
 
   const init = () => {
-    if (!canvasRef.current) return;
+    if (!canvasRef.current) return null;
     
     canvas = canvasRef.current;
     ctx = canvas.getContext("2d");
-    if (!ctx) return;
+    if (!ctx) return null;
     
     w = ctx.canvas.width = window.innerWidth;
     h = ctx.canvas.height = window.innerHeight;
@@ -138,21 +138,23 @@ export const WavyBackground = ({
   return (
     <div
       className={cn(
-        "h-screen flex flex-col items-center justify-center fixed inset-0 -z-10",
+        "h-screen w-screen flex flex-col items-center justify-center fixed inset-0 -z-10 pointer-events-none",
         containerClassName
       )}
     >
       <canvas
-        className="absolute inset-0 z-0"
+        className="absolute inset-0 z-0 w-full h-full"
         ref={canvasRef}
         id="canvas"
         style={{
           ...(isSafari ? { filter: `blur(${blur}px)` } : {}),
         }}
       ></canvas>
-      <div className={cn("relative z-10", className)} {...props}>
-        {children}
-      </div>
+      {children && (
+        <div className={cn("relative z-10", className)} {...props}>
+          {children}
+        </div>
+      )}
     </div>
   );
 };
