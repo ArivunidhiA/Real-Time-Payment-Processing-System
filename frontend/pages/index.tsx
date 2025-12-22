@@ -224,8 +224,13 @@ export default function Dashboard() {
         <link rel="icon" href="/favicon.ico" />
       </Head>
 
-      <WavyBackground />
-      <div className="relative z-10 min-h-screen overflow-y-auto">
+      <WavyBackground 
+        backgroundFill="rgba(0, 0, 0, 0.8)"
+        waveOpacity={0.8}
+        blur={10}
+        speed="fast"
+      />
+      <div className="relative z-10 min-h-screen overflow-y-auto bg-transparent">
           {/* Header */}
           <motion.header
             initial={{ opacity: 0, y: -20 }}

@@ -47,18 +47,30 @@ export const WavyBackground = ({
   };
 
   const init = () => {
+    if (!canvasRef.current) return;
+    
     canvas = canvasRef.current;
     ctx = canvas.getContext("2d");
+    if (!ctx) return;
+    
     w = ctx.canvas.width = window.innerWidth;
     h = ctx.canvas.height = window.innerHeight;
     ctx.filter = `blur(${blur}px)`;
     nt = 0;
-    window.onresize = function () {
+    
+    const handleResize = () => {
+      if (!ctx || !canvas) return;
       w = ctx.canvas.width = window.innerWidth;
       h = ctx.canvas.height = window.innerHeight;
       ctx.filter = `blur(${blur}px)`;
     };
+    
+    window.addEventListener('resize', handleResize);
     render();
+    
+    return () => {
+      window.removeEventListener('resize', handleResize);
+    };
   };
 
   const waveColors = colors ?? [
@@ -74,6 +86,7 @@ export const WavyBackground = ({
       ctx.beginPath();
       ctx.lineWidth = waveWidth || 50;
       ctx.strokeStyle = waveColors[i % waveColors.length];
+      ctx.globalAlpha = 0.8; // Make waves more visible
       for (x = 0; x < w; x += 5) {
         var y = noise(x / 800, 0.3 * i, nt) * 100;
         ctx.lineTo(x, y + h * 0.5); // adjust for height, currently at 50% of the container
@@ -83,19 +96,32 @@ export const WavyBackground = ({
     }
   };
 
-  let animationId: number = 0;
+  const animationIdRef = useRef<number>(0);
   const render = () => {
+    if (!ctx || !canvas) return;
+    
+    // Clear the canvas
+    ctx.clearRect(0, 0, w, h);
+    
+    // Fill background
     ctx.fillStyle = backgroundFill || "black";
-    ctx.globalAlpha = waveOpacity || 0.5;
+    ctx.globalAlpha = 1;
     ctx.fillRect(0, 0, w, h);
+    
+    // Draw waves with proper opacity
+    ctx.globalAlpha = 1;
     drawWave(5);
-    animationId = requestAnimationFrame(render);
+    
+    animationIdRef.current = requestAnimationFrame(render);
   };
 
   useEffect(() => {
-    init();
+    const cleanup = init();
     return () => {
-      cancelAnimationFrame(animationId);
+      if (animationIdRef.current) {
+        cancelAnimationFrame(animationIdRef.current);
+      }
+      if (cleanup) cleanup();
     };
   }, []);
 
