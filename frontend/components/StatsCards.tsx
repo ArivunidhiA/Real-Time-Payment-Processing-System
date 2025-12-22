@@ -19,7 +19,7 @@ const StatsCards: React.FC<StatsCardsProps> = ({ stats }) => {
     return (
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
         {[...Array(4)].map((_, i) => (
-          <div key={i} className="bg-white/10 backdrop-blur-lg rounded-xl border border-white/20 p-6 animate-pulse">
+          <div key={i} className="bg-white/10 backdrop-blur-lg rounded-xl border border-white/20 p-6 animate-pulse card-glow">
             <div className="h-4 bg-white/20 rounded w-3/4 mb-2"></div>
             <div className="h-8 bg-white/20 rounded w-1/2"></div>
           </div>
