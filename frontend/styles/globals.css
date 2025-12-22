@@ -95,4 +95,73 @@
     inset: 0;
     overflow: hidden;
   }
+  
+  /* Glow effects for text */
+  .text-glow {
+    text-shadow: 0 0 10px rgba(255, 255, 255, 0.8),
+                 0 0 20px rgba(255, 255, 255, 0.6),
+                 0 0 30px rgba(255, 255, 255, 0.4);
+  }
+  
+  .text-glow-strong {
+    text-shadow: 0 0 15px rgba(255, 255, 255, 1),
+                 0 0 30px rgba(255, 255, 255, 0.8),
+                 0 0 45px rgba(255, 255, 255, 0.6);
+  }
+  
+  /* Glow effects for colored text */
+  .text-glow-green {
+    text-shadow: 0 0 10px rgba(74, 222, 128, 0.8),
+                 0 0 20px rgba(74, 222, 128, 0.6),
+                 0 0 30px rgba(74, 222, 128, 0.4);
+  }
+  
+  .text-glow-blue {
+    text-shadow: 0 0 10px rgba(96, 165, 250, 0.8),
+                 0 0 20px rgba(96, 165, 250, 0.6),
+                 0 0 30px rgba(96, 165, 250, 0.4);
+  }
+  
+  .text-glow-purple {
+    text-shadow: 0 0 10px rgba(168, 85, 247, 0.8),
+                 0 0 20px rgba(168, 85, 247, 0.6),
+                 0 0 30px rgba(168, 85, 247, 0.4);
+  }
+  
+  .text-glow-emerald {
+    text-shadow: 0 0 10px rgba(52, 211, 153, 0.8),
+                 0 0 20px rgba(52, 211, 153, 0.6),
+                 0 0 30px rgba(52, 211, 153, 0.4);
+  }
+  
+  /* Glow effects for icons */
+  .icon-glow {
+    filter: drop-shadow(0 0 8px rgba(255, 255, 255, 0.8))
+            drop-shadow(0 0 16px rgba(255, 255, 255, 0.6))
+            drop-shadow(0 0 24px rgba(255, 255, 255, 0.4));
+  }
+  
+  .icon-glow-green {
+    filter: drop-shadow(0 0 8px rgba(74, 222, 128, 0.8))
+            drop-shadow(0 0 16px rgba(74, 222, 128, 0.6))
+            drop-shadow(0 0 24px rgba(74, 222, 128, 0.4));
+  }
+  
+  .icon-glow-blue {
+    filter: drop-shadow(0 0 8px rgba(96, 165, 250, 0.8))
+            drop-shadow(0 0 16px rgba(96, 165, 250, 0.6))
+            drop-shadow(0 0 24px rgba(96, 165, 250, 0.4));
+  }
+  
+  .icon-glow-purple {
+    filter: drop-shadow(0 0 8px rgba(168, 85, 247, 0.8))
+            drop-shadow(0 0 16px rgba(168, 85, 247, 0.6))
+            drop-shadow(0 0 24px rgba(168, 85, 247, 0.4));
+  }
+  
+  .icon-glow-emerald {
+    filter: drop-shadow(0 0 8px rgba(52, 211, 153, 0.8))
+            drop-shadow(0 0 16px rgba(52, 211, 153, 0.6))
+            drop-shadow(0 0 24px rgba(52, 211, 153, 0.4));
+  }
 }

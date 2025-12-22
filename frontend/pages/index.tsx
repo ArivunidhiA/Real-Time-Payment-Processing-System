@@ -241,10 +241,10 @@ export default function Dashboard() {
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
               <div className="flex justify-between items-center py-4">
                 <div>
-                  <h1 className="text-3xl font-bold bg-gradient-to-r from-white to-white/70 bg-clip-text text-transparent">
+                  <h1 className="text-3xl font-bold bg-gradient-to-r from-white to-white/70 bg-clip-text text-transparent text-glow-strong">
                     Real-Time Payment Dashboard
                   </h1>
-                  <p className="text-sm text-white/90 mt-1 font-medium">Live transaction monitoring and analytics</p>
+                  <p className="text-sm text-white/90 mt-1 font-medium text-glow">Live transaction monitoring and analytics</p>
                 </div>
                 <div className="flex items-center gap-4">
                   <motion.div
