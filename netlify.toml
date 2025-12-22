@@ -3,8 +3,8 @@
   base = "."
   # Build command for Next.js frontend
   command = "cd frontend && npm install && npm run build"
-  # Publish directory for Next.js (plugin handles this automatically)
-  publish = "."
+  # Publish directory for Next.js (must be .next or frontend/.next)
+  publish = "frontend/.next"
 
 [build.environment]
   NODE_VERSION = "18"
