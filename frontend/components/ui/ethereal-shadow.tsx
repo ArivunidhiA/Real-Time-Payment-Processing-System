@@ -104,11 +104,11 @@ export function EtherealShadow({
             className={className}
             style={{
                 overflow: "hidden",
-                position: "fixed",
+                position: "absolute",
                 inset: 0,
                 width: "100%",
                 height: "100%",
-                zIndex: -10,
+                zIndex: 0,
                 pointerEvents: "none",
                 ...style
             }}
@@ -162,12 +162,9 @@ export function EtherealShadow({
                 <div
                     style={{
                         backgroundColor: color,
-                        maskImage: `url('https://framerusercontent.com/images/ceBGguIpUU8luwByxuQz79t7To.png')`,
-                        maskSize: sizing === "stretch" ? "100% 100%" : "cover",
-                        maskRepeat: "no-repeat",
-                        maskPosition: "center",
                         width: "100%",
-                        height: "100%"
+                        height: "100%",
+                        opacity: 0.3
                     }}
                 />
             </div>
