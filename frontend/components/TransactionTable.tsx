@@ -40,13 +40,13 @@ const TransactionTable: React.FC<TransactionTableProps> = ({ transactions, isLoa
     
     switch (status) {
       case 'APPROVED':
-        return `${baseClasses} bg-green-500/20 text-green-400 border border-green-500/30`;
+        return `${baseClasses} bg-green-500/20 text-black border border-green-500/30`;
       case 'DECLINED':
-        return `${baseClasses} bg-red-500/20 text-red-400 border border-red-500/30`;
+        return `${baseClasses} bg-red-500/20 text-black border border-red-500/30`;
       case 'PENDING':
-        return `${baseClasses} bg-yellow-500/20 text-yellow-400 border border-yellow-500/30`;
+        return `${baseClasses} bg-yellow-500/20 text-black border border-yellow-500/30`;
       default:
-        return `${baseClasses} bg-gray-500/20 text-gray-400 border border-gray-500/30`;
+        return `${baseClasses} bg-gray-500/20 text-black border border-gray-500/30`;
     }
   };
 
