@@ -224,7 +224,6 @@ export default function Dashboard() {
         <link rel="icon" href="/favicon.ico" />
       </Head>
 
-      <div className="fixed inset-0 bg-black -z-20" />
       <div className="fixed inset-0 -z-10">
         <EtherealShadow
           color="rgba(99, 102, 241, 0.8)"

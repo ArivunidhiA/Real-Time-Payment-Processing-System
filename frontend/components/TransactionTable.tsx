@@ -36,17 +36,17 @@ const TransactionTable: React.FC<TransactionTableProps> = ({ transactions, isLoa
   };
 
   const getStatusBadge = (status: string) => {
-    const baseClasses = "px-3 py-1 rounded-full text-xs font-medium flex items-center gap-1.5 text-black";
+    const baseClasses = "px-3 py-1 rounded-full text-xs font-bold flex items-center gap-1.5";
     
     switch (status) {
       case 'APPROVED':
-        return `${baseClasses} bg-green-500/20 border border-green-500/30`;
+        return `${baseClasses} bg-green-600 text-black border border-green-700`;
       case 'DECLINED':
-        return `${baseClasses} bg-red-500/20 border border-red-500/30`;
+        return `${baseClasses} bg-red-600 text-black border border-red-700`;
       case 'PENDING':
-        return `${baseClasses} bg-yellow-500/20 border border-yellow-500/30`;
+        return `${baseClasses} bg-yellow-600 text-black border border-yellow-700`;
       default:
-        return `${baseClasses} bg-gray-500/20 border border-gray-500/30`;
+        return `${baseClasses} bg-gray-600 text-black border border-gray-700`;
     }
   };
 
@@ -158,7 +158,7 @@ const TransactionTable: React.FC<TransactionTableProps> = ({ transactions, isLoa
                   <td className="px-6 py-4 whitespace-nowrap">
                     <span className={getStatusBadge(transaction.status)}>
                       <span className="icon-glow">{getStatusIcon(transaction.status)}</span>
-                      <span className="status-text-black" style={{ color: '#000000', fontWeight: 'bold' }}>{transaction.status}</span>
+                      <span style={{ color: '#000000', fontWeight: 'bold' }}>{transaction.status}</span>
                     </span>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm font-medium" style={{ color: '#ffffff' }}>
