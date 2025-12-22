@@ -1,26 +1,29 @@
 [build]
+  # Base directory for the project
+  base = "."
   # Build command for Next.js frontend
   command = "cd frontend && npm install && npm run build"
-  # Publish directory
+  # Publish directory for Next.js
   publish = "frontend/.next"
 
 [build.environment]
   NODE_VERSION = "18"
   NPM_FLAGS = "--legacy-peer-deps"
+  # Next.js environment
+  NEXT_TELEMETRY_DISABLED = "1"
 
-# Netlify Functions for backend API
-[functions]
-  directory = "netlify/functions"
-  node_bundler = "esbuild"
+# Netlify Next.js plugin configuration
+[[plugins]]
+  package = "@netlify/plugin-nextjs"
 
-# Redirect rules - proxy API calls to Netlify Functions
+# Redirect rules for Next.js
 [[redirects]]
   from = "/api/*"
-  to = "/.netlify/functions/api/:splat"
+  to = "https://real-time-payment-processing-system-z90t.onrender.com/api/:splat"
   status = 200
   force = true
 
-# Redirect all other routes to Next.js
+# Next.js catch-all redirect (handles client-side routing)
 [[redirects]]
   from = "/*"
   to = "/index.html"
@@ -35,11 +38,12 @@
     X-Content-Type-Options = "nosniff"
     Referrer-Policy = "strict-origin-when-cross-origin"
     Permissions-Policy = "camera=(), microphone=(), geolocation=()"
+    Content-Security-Policy = "default-src 'self'; script-src 'self' 'unsafe-eval' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; font-src 'self' data:; connect-src 'self' https://real-time-payment-processing-system-z90t.onrender.com wss://real-time-payment-processing-system-z90t.onrender.com;"
 
+# CORS headers for API routes
 [[headers]]
   for = "/api/*"
   [headers.values]
     Access-Control-Allow-Origin = "*"
     Access-Control-Allow-Headers = "Content-Type, Authorization"
     Access-Control-Allow-Methods = "GET, POST, PUT, DELETE, OPTIONS"
-

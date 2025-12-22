@@ -1,43 +1,42 @@
 # Netlify Deployment Guide
 
-This guide will help you deploy the Real-Time Payment Processing System to Netlify.
+This guide will help you deploy the frontend to Netlify.
 
-## 📋 Prerequisites
+## 🚀 Quick Deployment Steps
 
-1. **Netlify Account**: Sign up at https://netlify.com
-2. **GitHub Repository**: Push your code to GitHub
-3. **Backend Deployed**: Backend should be deployed to Render first (see `RENDER_BACKEND_DEPLOYMENT.md`)
-4. **Backend URL**: Your Render backend URL (e.g., `https://your-backend.onrender.com`)
+### Option 1: Deploy via GitHub (Recommended)
 
-## 🚀 Deployment Steps
+1. **Push your code to GitHub** (if not already done)
+   ```bash
+   git add .
+   git commit -m "Ready for Netlify deployment"
+   git push origin main
+   ```
 
-### Option 1: Deploy via Netlify Dashboard (Recommended)
-
-1. **Connect Repository**
+2. **Connect to Netlify**
    - Go to https://app.netlify.com
    - Click "Add new site" → "Import an existing project"
-   - Connect your GitHub repository
-   - Select the repository
+   - Choose "GitHub" and authorize Netlify
+   - Select your repository: `Real-Time-Payment-Processing-System`
 
-2. **Configure Build Settings**
-   - **Base directory**: `frontend` (important!)
-   - **Build command**: `npm install && npm run build`
-   - **Publish directory**: `.next`
-   - **Node version**: `18` (set in Environment Variables)
+3. **Configure Build Settings**
+   - **Base directory**: Leave empty (or set to `.`)
+   - **Build command**: `cd frontend && npm install && npm run build`
+   - **Publish directory**: `frontend/.next`
+   - **Node version**: `18` (or leave default)
 
-3. **Set Environment Variables**
-   Go to Site Settings → Environment Variables and add:
-
-   **Required Frontend Variable:**
+4. **Set Environment Variables**
+   Click "Show advanced" → "New variable" and add:
    ```
-   NEXT_PUBLIC_BACKEND_URL=https://your-backend.onrender.com
+   NEXT_PUBLIC_BACKEND_URL=https://real-time-payment-processing-system-z90t.onrender.com
    ```
-   ⚠️ **Important**: Replace with your actual Render backend URL!
 
-4. **Deploy**
+5. **Deploy**
    - Click "Deploy site"
-   - Wait for build to complete
+   - Wait for build to complete (3-5 minutes)
    - Your site will be live at `https://your-site-name.netlify.app`
+
+---
 
 ### Option 2: Deploy via Netlify CLI
 
@@ -53,15 +52,15 @@ This guide will help you deploy the Real-Time Payment Processing System to Netli
 
 3. **Initialize Site**
    ```bash
-   cd /path/to/your/project
+   cd /path/to/Real-Time-Payment-Processing-System
    netlify init
    ```
+   - Choose "Create & configure a new site"
+   - Follow prompts
 
 4. **Set Environment Variables**
    ```bash
-   netlify env:set NEXT_PUBLIC_BACKEND_URL https://your-site-name.netlify.app
-   netlify env:set DATABASE_URL postgresql://...
-   # ... add all other variables
+   netlify env:set NEXT_PUBLIC_BACKEND_URL https://real-time-payment-processing-system-z90t.onrender.com
    ```
 
 5. **Deploy**
@@ -69,141 +68,212 @@ This guide will help you deploy the Real-Time Payment Processing System to Netli
    netlify deploy --prod
    ```
 
-## ⚙️ Configuration Files
+---
 
-### `netlify.toml`
-The project includes a `netlify.toml` file that configures:
-- Build settings
-- Function directory
-- Redirect rules (API routes → Functions)
-- Security headers
+## ⚙️ Netlify Dashboard Settings
 
-### Important Note
+After initial deployment, configure these settings in the Netlify dashboard:
 
-**Backend is deployed separately on Render** - Netlify only hosts the frontend!
+### 1. Site Settings → Build & Deploy
 
-- Backend: Render (see `RENDER_BACKEND_DEPLOYMENT.md`)
-- Frontend: Netlify (this guide)
-- The frontend makes API calls to the Render backend
+**Build settings:**
+- **Base directory**: `.` (root)
+- **Build command**: `cd frontend && npm install && npm run build`
+- **Publish directory**: `frontend/.next`
 
-## 🔧 Recommended Architecture
+**Environment variables:**
+- `NEXT_PUBLIC_BACKEND_URL` = `https://real-time-payment-processing-system-z90t.onrender.com`
+- `NODE_VERSION` = `18` (optional, but recommended)
 
-For production, we recommend:
+### 2. Site Settings → Environment Variables
 
+Add these variables:
 ```
-┌─────────────────┐
-│   Netlify       │
-│   (Frontend)    │
-└────────┬────────┘
-         │
-         │ API Calls
-         │
-┌────────▼────────┐
-│   Render/       │
-│   Railway       │
-│   (Backend API) │
-└────────┬────────┘
-         │
-    ┌────┴────┐
-    │         │
-┌───▼───┐ ┌──▼──┐
-│ Kafka │ │Postgres│
-└───────┘ └──────┘
+NEXT_PUBLIC_BACKEND_URL=https://real-time-payment-processing-system-z90t.onrender.com
+NODE_VERSION=18
+NPM_FLAGS=--legacy-peer-deps
 ```
 
-### Separate Backend Deployment
+### 3. Site Settings → Domain Management
 
-1. **Deploy Backend to Render/Railway**
-   - Push backend code
-   - Set all environment variables
-   - Get backend URL (e.g., `https://your-backend.onrender.com`)
+- Your site will have a default URL: `https://random-name.netlify.app`
+- You can add a custom domain if you have one
+- Or change the site name in "Site settings" → "Change site name"
 
-2. **Update Frontend**
-   - Set `NEXT_PUBLIC_BACKEND_URL` to backend URL
-   - Redeploy frontend to Netlify
+### 4. Site Settings → Build & Deploy → Post Processing
 
-## 🔐 Environment Variables Checklist
+- **Asset optimization**: Enabled (default)
+- **Snippet injection**: Enabled (default)
 
-### Frontend (Netlify)
-- [ ] `NEXT_PUBLIC_BACKEND_URL` (your Render backend URL)
+### 5. Site Settings → Build & Deploy → Continuous Deployment
 
-**Note**: All backend environment variables are set in Render, not Netlify!
+- **Build hooks**: Can be used for manual deployments
+- **Deploy notifications**: Configure if needed
 
-## 🧪 Testing Deployment
+---
 
-1. **Frontend**
-   - Visit: `https://your-site.netlify.app`
-   - Should load the dashboard with gradient background
+## 🔧 Configuration Details
 
-2. **Backend Connection**
-   - Open browser console (F12)
-   - Check for API calls to your Render backend
-   - Should see data loading in the dashboard
+### Build Command
+```bash
+cd frontend && npm install && npm run build
+```
 
-3. **Backend Health Check** (test directly)
-   - Visit: `https://your-backend.onrender.com/api/health`
-   - Should return: `{"success":true,"status":"ok"}`
+This:
+1. Changes to the frontend directory
+2. Installs dependencies
+3. Builds the Next.js application
+
+### Publish Directory
+```
+frontend/.next
+```
+
+This is where Next.js outputs the production build.
+
+### Environment Variables
+
+**Required:**
+- `NEXT_PUBLIC_BACKEND_URL`: Your Render backend URL
+
+**Optional:**
+- `NODE_VERSION`: Node.js version (default: 18)
+- `NPM_FLAGS`: Additional npm flags
+
+---
+
+## 🧪 Testing After Deployment
+
+1. **Check Build Logs**
+   - Go to "Deploys" tab
+   - Click on the latest deploy
+   - Check for any errors
+
+2. **Test the Site**
+   - Visit your Netlify URL
+   - Check browser console for errors
+   - Verify WebSocket connection works
+   - Test transaction generation
+
+3. **Verify Environment Variables**
+   - Check Network tab in browser DevTools
+   - API calls should go to your Render backend
+   - WebSocket should connect to Render backend
+
+---
 
 ## 🐛 Troubleshooting
 
 ### Build Fails
-- Check build logs in Netlify dashboard
-- Ensure all dependencies are in `package.json`
-- Check Node version (should be 18)
 
-### API Calls Fail
-- Verify `NEXT_PUBLIC_BACKEND_URL` is correct
-- Check CORS settings on backend
+**Error: "Cannot find module"**
+- Check that all dependencies are in `package.json`
+- Verify `npm install` completes successfully
+- Check build logs for specific missing modules
+
+**Error: "TypeScript errors"**
+- Fix TypeScript errors locally first
+- Run `npm run build` locally to test
+- Check `tsconfig.json` configuration
+
+**Error: "Next.js build failed"**
+- Check Node.js version (should be 18+)
+- Verify all environment variables are set
+- Check for memory issues (Netlify free tier has limits)
+
+### Site Not Loading
+
+**Blank page:**
 - Check browser console for errors
+- Verify `NEXT_PUBLIC_BACKEND_URL` is set correctly
+- Check Network tab for failed requests
 
-### Functions Not Working
-- Check function logs in Netlify dashboard
-- Verify environment variables are set
-- Check function timeout settings (default: 10s)
+**WebSocket not connecting:**
+- Verify backend URL is correct
+- Check CORS settings on backend
+- Verify WebSocket endpoint is accessible
 
-### WebSocket Issues
-- WebSockets require a persistent connection
-- Consider using a separate backend service (Render/Railway)
-- Or use Server-Sent Events (SSE) as alternative
+**API calls failing:**
+- Check backend is running on Render
+- Verify backend URL in environment variables
+- Check CORS configuration
 
-## 📊 Monitoring
+### Performance Issues
 
-1. **Netlify Analytics**
-   - View in Netlify dashboard
-   - Track visits, bandwidth, build times
+**Slow initial load:**
+- This is normal for Next.js on Netlify
+- Consider enabling Netlify's edge functions
+- Optimize images and assets
 
-2. **Function Logs**
-   - View in Netlify dashboard → Functions → Logs
-
-3. **Error Tracking**
-   - Set up Sentry DSN
-   - View errors in Sentry dashboard
-
-## 🔄 Continuous Deployment
-
-Netlify automatically deploys on:
-- Push to main branch
-- Pull requests (preview deployments)
-
-To disable auto-deploy:
-- Go to Site Settings → Build & Deploy
-- Uncheck "Deploy automatically"
-
-## 📝 Custom Domain
-
-1. Go to Site Settings → Domain Management
-2. Add custom domain
-3. Update DNS records as instructed
-4. Update `NEXT_PUBLIC_BACKEND_URL` if needed
-
-## 🎉 Success!
-
-Once deployed, your Real-Time Payment Processing System will be live at:
-`https://your-site-name.netlify.app`
+**WebSocket disconnections:**
+- Check backend keep-alive is configured
+- Verify Render backend is not spinning down
+- Check network connectivity
 
 ---
 
-**Need Help?**
-- Netlify Docs: https://docs.netlify.com
-- Netlify Community: https://community.netlify.com
+## 📋 Deployment Checklist
 
+Before deploying:
+
+- [ ] Code is pushed to GitHub
+- [ ] All dependencies are in `package.json`
+- [ ] `npm run build` works locally
+- [ ] Environment variables are documented
+- [ ] Backend is deployed and running on Render
+- [ ] Backend URL is correct
+
+After deploying:
+
+- [ ] Build completes successfully
+- [ ] Site loads without errors
+- [ ] API calls work correctly
+- [ ] WebSocket connects successfully
+- [ ] Transactions are processing
+- [ ] Dashboard displays data correctly
+
+---
+
+## 🔄 Updating Deployment
+
+### Automatic Updates (Recommended)
+
+If you connected via GitHub:
+- Push changes to `main` branch
+- Netlify will automatically rebuild and deploy
+- Check "Deploys" tab for status
+
+### Manual Updates
+
+1. **Via Netlify Dashboard:**
+   - Go to "Deploys" tab
+   - Click "Trigger deploy" → "Deploy site"
+
+2. **Via Netlify CLI:**
+   ```bash
+   netlify deploy --prod
+   ```
+
+---
+
+## 🎯 Next Steps
+
+After successful deployment:
+
+1. **Set up custom domain** (optional)
+2. **Configure SSL** (automatic with Netlify)
+3. **Set up analytics** (optional, Netlify Analytics)
+4. **Configure form handling** (if needed)
+5. **Set up redirects** (if needed)
+
+---
+
+## 📚 Additional Resources
+
+- [Netlify Next.js Documentation](https://docs.netlify.com/integrations/frameworks/next-js/)
+- [Netlify Environment Variables](https://docs.netlify.com/environment-variables/overview/)
+- [Next.js Deployment](https://nextjs.org/docs/deployment)
+
+---
+
+**Your frontend is now ready to deploy to Netlify!** 🚀
