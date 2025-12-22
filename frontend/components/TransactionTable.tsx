@@ -36,7 +36,7 @@ const TransactionTable: React.FC<TransactionTableProps> = ({ transactions, isLoa
   };
 
   const getStatusBadge = (status: string) => {
-    const baseClasses = "px-3 py-1 rounded-full text-xs font-medium flex items-center gap-1.5";
+    const baseClasses = "px-3 py-1 rounded-full text-xs font-medium flex items-center gap-1.5 text-black";
     
     switch (status) {
       case 'APPROVED':
@@ -156,9 +156,9 @@ const TransactionTable: React.FC<TransactionTableProps> = ({ transactions, isLoa
                     {transaction.merchant}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
-                    <span className={getStatusBadge(transaction.status)} style={{ color: '#000000' }}>
+                    <span className={getStatusBadge(transaction.status)} style={{ color: '#000000 !important' }}>
                       <span className="icon-glow">{getStatusIcon(transaction.status)}</span>
-                      <span style={{ color: '#000000' }}>{transaction.status}</span>
+                      <span className="text-black" style={{ color: '#000000 !important' }}>{transaction.status}</span>
                     </span>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm font-medium" style={{ color: '#ffffff' }}>

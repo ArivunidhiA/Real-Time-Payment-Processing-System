@@ -50,14 +50,18 @@
   /* Force all text in dashboard to be white (except status badges) */
   .card p,
   .card h3,
-  .card span:not([style*="color: #000000"]),
+  .card span:not(.text-black):not([class*="text-black"]),
   .card div {
     color: #ffffff !important;
   }
   
-  /* Ensure status badge text is black */
-  .card span[style*="color: #000000"],
-  span[style*="color: #000000"] {
+  /* Ensure status badge text is black - highest priority */
+  .text-black,
+  span.text-black,
+  [class*="bg-green-500/20"] span:not(.icon-glow),
+  [class*="bg-red-500/20"] span:not(.icon-glow),
+  [class*="bg-yellow-500/20"] span:not(.icon-glow),
+  [class*="bg-gray-500/20"] span:not(.icon-glow) {
     color: #000000 !important;
   }
   
