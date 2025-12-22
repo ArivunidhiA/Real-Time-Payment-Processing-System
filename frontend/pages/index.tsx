@@ -301,12 +301,11 @@ export default function Dashboard() {
           <footer className="bg-white/5 backdrop-blur-xl border-t border-white/10 mt-12">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
               <div className="text-center text-sm text-white/60">
-                <p>Real-Time Payment Processing System - Built with Next.js, Node.js, Kafka, and PostgreSQL</p>
+                <p>Real-Time Payment Processing System - Built with Next.js, Node.js, and PostgreSQL</p>
               </div>
             </div>
           </footer>
         </div>
-      </div>
     </>
   );
 }
