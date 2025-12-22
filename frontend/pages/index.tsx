@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import Head from 'next/head';
-import { DottedSurface } from '@/components/ui/dotted-surface';
+import { WavyBackground } from '@/components/ui/wavy-background';
+import { Button } from '@/components/ui/neon-button';
 import StatsCards from '../components/StatsCards';
 import VolumeChart from '../components/VolumeChart';
 import TransactionTable from '../components/TransactionTable';
@@ -223,7 +224,7 @@ export default function Dashboard() {
         <link rel="icon" href="/favicon.ico" />
       </Head>
 
-      <DottedSurface />
+      <WavyBackground />
       <div className="relative z-10 min-h-screen overflow-y-auto">
           {/* Header */}
           <motion.header
@@ -253,15 +254,13 @@ export default function Dashboard() {
                       {connectionStatus === 'connected' ? 'Live' : 'Offline'}
                     </span>
                   </motion.div>
-                  <motion.button
-                    whileHover={{ scale: 1.05 }}
-                    whileTap={{ scale: 0.95 }}
+                  <Button
                     onClick={generateTransaction}
-                    className="bg-blue-500/20 hover:bg-blue-500/30 text-blue-400 border border-blue-500/30 font-medium py-2 px-4 rounded-lg transition-all duration-200 flex items-center gap-2 backdrop-blur-sm"
+                    className="flex items-center gap-2 text-blue-400"
                   >
                     <RefreshCw className="w-4 h-4" />
                     Generate Transaction
-                  </motion.button>
+                  </Button>
                 </div>
               </div>
             </div>
@@ -284,24 +283,20 @@ export default function Dashboard() {
                 <h3 className="text-lg font-semibold text-white mb-4">System Controls</h3>
                 <div className="space-y-4">
                   <div className="flex space-x-4">
-                    <motion.button
-                      whileHover={{ scale: 1.05 }}
-                      whileTap={{ scale: 0.95 }}
+                    <Button
                       onClick={() => toggleProducer('start')}
-                      className="flex-1 bg-green-500/20 hover:bg-green-500/30 text-green-400 border border-green-500/30 font-medium py-2 px-4 rounded-lg transition-all duration-200 flex items-center justify-center gap-2 backdrop-blur-sm"
+                      className="flex-1 text-green-400 border-green-500/30 bg-green-500/5 hover:bg-green-500/0 flex items-center justify-center gap-2"
                     >
                       <Play className="w-4 h-4" />
                       Start Producer
-                    </motion.button>
-                    <motion.button
-                      whileHover={{ scale: 1.05 }}
-                      whileTap={{ scale: 0.95 }}
+                    </Button>
+                    <Button
                       onClick={() => toggleProducer('stop')}
-                      className="flex-1 bg-red-500/20 hover:bg-red-500/30 text-red-400 border border-red-500/30 font-medium py-2 px-4 rounded-lg transition-all duration-200 flex items-center justify-center gap-2 backdrop-blur-sm"
+                      className="flex-1 text-red-400 border-red-500/30 bg-red-500/5 hover:bg-red-500/0 flex items-center justify-center gap-2"
                     >
                       <Square className="w-4 h-4" />
                       Stop Producer
-                    </motion.button>
+                    </Button>
                   </div>
                   <div className="text-sm text-white/70 space-y-2 pt-4 border-t border-white/10">
                     <p><strong className="text-white">Total Transactions:</strong> {stats?.totalTransactions || 0}</p>
