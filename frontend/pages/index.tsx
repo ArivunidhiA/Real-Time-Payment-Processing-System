@@ -252,11 +252,11 @@ export default function Dashboard() {
                     className={`px-4 py-2 rounded-lg border backdrop-blur-sm flex items-center gap-2 ${getConnectionStatusColor()}`}
                   >
                     {connectionStatus === 'connected' ? (
-                      <Wifi className="w-4 h-4" />
+                      <Wifi className="w-4 h-4 icon-glow" />
                     ) : (
-                      <WifiOff className="w-4 h-4" />
+                      <WifiOff className="w-4 h-4 icon-glow" />
                     )}
-                    <span className="text-xs font-medium">
+                    <span className="text-xs font-medium text-glow">
                       {connectionStatus === 'connected' ? 'Live' : 'Offline'}
                     </span>
                   </motion.div>
@@ -264,7 +264,7 @@ export default function Dashboard() {
                     onClick={generateTransaction}
                     className="flex items-center gap-2 text-blue-400"
                   >
-                    <RefreshCw className="w-4 h-4" />
+                    <RefreshCw className="w-4 h-4 icon-glow-blue" />
                     Generate Transaction
                   </Button>
                 </div>
@@ -293,22 +293,22 @@ export default function Dashboard() {
                       onClick={() => toggleProducer('start')}
                       className="flex-1 text-green-400 border-green-500/30 bg-green-500/5 hover:bg-green-500/0 flex items-center justify-center gap-2"
                     >
-                      <Play className="w-4 h-4" />
+                      <Play className="w-4 h-4 icon-glow-green" />
                       Start Producer
                     </Button>
                     <Button
                       onClick={() => toggleProducer('stop')}
                       className="flex-1 text-red-400 border-red-500/30 bg-red-500/5 hover:bg-red-500/0 flex items-center justify-center gap-2"
                     >
-                      <Square className="w-4 h-4" />
+                      <Square className="w-4 h-4 icon-glow" />
                       Stop Producer
                     </Button>
                   </div>
                   <div className="text-sm text-white space-y-2 pt-4 border-t border-white/20">
-                    <p><strong className="text-white font-bold">Total Transactions:</strong> <span className="font-semibold">{stats?.totalTransactions || 0}</span></p>
-                    <p><strong className="text-white font-bold">Approved:</strong> <span className="font-semibold text-green-400">{stats?.approvedTransactions || 0}</span></p>
-                    <p><strong className="text-white font-bold">Declined:</strong> <span className="font-semibold text-red-400">{stats?.declinedTransactions || 0}</span></p>
-                    <p><strong className="text-white font-bold">Total Volume:</strong> <span className="font-semibold text-blue-400">${(stats?.totalVolume || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span></p>
+                    <p><strong className="text-white font-bold text-glow">Total Transactions:</strong> <span className="font-semibold text-glow">{stats?.totalTransactions || 0}</span></p>
+                    <p><strong className="text-white font-bold text-glow">Approved:</strong> <span className="font-semibold text-green-400 text-glow-green">{stats?.approvedTransactions || 0}</span></p>
+                    <p><strong className="text-white font-bold text-glow">Declined:</strong> <span className="font-semibold text-red-400 text-glow">{stats?.declinedTransactions || 0}</span></p>
+                    <p><strong className="text-white font-bold text-glow">Total Volume:</strong> <span className="font-semibold text-blue-400 text-glow-blue">${(stats?.totalVolume || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span></p>
                   </div>
                 </div>
               </motion.div>

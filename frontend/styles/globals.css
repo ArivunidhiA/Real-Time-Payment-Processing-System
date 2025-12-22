@@ -164,4 +164,10 @@
             drop-shadow(0 0 16px rgba(52, 211, 153, 0.6))
             drop-shadow(0 0 24px rgba(52, 211, 153, 0.4));
   }
+  
+  .icon-glow-red {
+    filter: drop-shadow(0 0 8px rgba(248, 113, 113, 0.8))
+            drop-shadow(0 0 16px rgba(248, 113, 113, 0.6))
+            drop-shadow(0 0 24px rgba(248, 113, 113, 0.4));
+  }
 }
