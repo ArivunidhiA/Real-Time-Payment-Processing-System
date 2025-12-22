@@ -23,7 +23,27 @@
 
 @layer components {
   .card {
-    @apply bg-white/10 backdrop-blur-lg rounded-xl border border-white/20 p-6 shadow-xl;
+    @apply bg-white/5 backdrop-blur-lg rounded-xl border border-white/20 p-6 shadow-xl;
+  }
+  
+  table {
+    background: transparent !important;
+  }
+  
+  thead {
+    background: transparent !important;
+  }
+  
+  tbody {
+    background: transparent !important;
+  }
+  
+  tr {
+    background: transparent !important;
+  }
+  
+  td, th {
+    background: transparent !important;
   }
   
   .btn-primary {

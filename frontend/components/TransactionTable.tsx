@@ -118,13 +118,13 @@ const TransactionTable: React.FC<TransactionTableProps> = ({ transactions, isLoa
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5 }}
-      className="bg-white/10 backdrop-blur-lg rounded-xl border border-white/20 p-6 shadow-xl"
+      className="bg-white/5 backdrop-blur-lg rounded-xl border border-white/20 p-6 shadow-xl"
     >
-      <h3 className="text-lg font-semibold text-white mb-6">Recent Transactions</h3>
+      <h3 className="text-lg font-bold text-white mb-6">Recent Transactions</h3>
       <div className="overflow-x-auto">
-        <table className="min-w-full">
-          <thead>
-            <tr className="border-b border-white/10">
+        <table className="min-w-full bg-transparent">
+          <thead className="bg-transparent">
+            <tr className="border-b border-white/20">
               <th className="px-6 py-3 text-left text-xs font-semibold text-white uppercase tracking-wider">ID</th>
               <th className="px-6 py-3 text-left text-xs font-semibold text-white uppercase tracking-wider">User</th>
               <th className="px-6 py-3 text-left text-xs font-semibold text-white uppercase tracking-wider">Amount</th>

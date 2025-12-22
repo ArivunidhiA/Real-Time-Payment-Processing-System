@@ -20,8 +20,8 @@ const VolumeChart: React.FC<VolumeChartProps> = ({ data }) => {
         className="bg-white/10 backdrop-blur-lg rounded-xl border border-white/20 p-6 shadow-xl"
       >
         <div className="flex items-center gap-3 mb-4">
-          <BarChart3 className="w-6 h-6 text-white/70" />
-          <h3 className="text-lg font-semibold text-white">Transaction Volume (Last Hour)</h3>
+          <BarChart3 className="w-6 h-6 text-white" />
+          <h3 className="text-lg font-bold text-white">Transaction Volume (Last Hour)</h3>
         </div>
         <div className="h-64 flex items-center justify-center">
           <p className="text-white/50">No data available</p>
@@ -67,8 +67,8 @@ const VolumeChart: React.FC<VolumeChartProps> = ({ data }) => {
       className="bg-white/10 backdrop-blur-lg rounded-xl border border-white/20 p-6 shadow-xl"
     >
       <div className="flex items-center gap-3 mb-6">
-        <BarChart3 className="w-6 h-6 text-white/70" />
-        <h3 className="text-lg font-semibold text-white">Transaction Volume (Last Hour)</h3>
+        <BarChart3 className="w-6 h-6 text-white" />
+        <h3 className="text-lg font-bold text-white">Transaction Volume (Last Hour)</h3>
       </div>
       <div className="h-80">
         <ResponsiveContainer width="100%" height="100%">
@@ -82,13 +82,17 @@ const VolumeChart: React.FC<VolumeChartProps> = ({ data }) => {
             <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.1)" />
             <XAxis 
               dataKey="time" 
-              stroke="rgba(255,255,255,0.7)"
+              stroke="#ffffff"
+              fill="#ffffff"
+              tick={{ fill: '#ffffff', fontSize: 12, fontWeight: 600 }}
               fontSize={12}
               tickLine={false}
               axisLine={false}
             />
             <YAxis 
-              stroke="rgba(255,255,255,0.7)"
+              stroke="#ffffff"
+              fill="#ffffff"
+              tick={{ fill: '#ffffff', fontSize: 12, fontWeight: 600 }}
               fontSize={12}
               tickLine={false}
               axisLine={false}
@@ -96,7 +100,7 @@ const VolumeChart: React.FC<VolumeChartProps> = ({ data }) => {
             />
             <Tooltip content={<CustomTooltip />} />
             <Legend 
-              wrapperStyle={{ color: 'rgba(255,255,255,0.7)' }}
+              wrapperStyle={{ color: '#ffffff', fontWeight: 600 }}
               iconType="circle"
             />
             <Area 
