@@ -131,12 +131,21 @@ export default function Dashboard() {
         },
       });
       
+      const data = await response.json();
+      
       if (response.ok) {
-        // Refresh stats after generating a transaction
-        setTimeout(fetchData, 1000);
+        console.log('Transaction generated:', data);
+        // Refresh stats and transactions after generating
+        setTimeout(() => {
+          fetchData();
+        }, 500);
+      } else {
+        console.error('Failed to generate transaction:', data);
+        alert(`Error: ${data.error || 'Failed to generate transaction'}`);
       }
     } catch (error) {
       console.error('Error generating transaction:', error);
+      alert('Error generating transaction. Please check console for details.');
     }
   };
 
@@ -148,13 +157,24 @@ export default function Dashboard() {
         headers: {
           'Content-Type': 'application/json',
         },
+        body: action === 'start' ? JSON.stringify({ interval: 2000 }) : undefined,
       });
       
+      const data = await response.json();
+      
       if (response.ok) {
-        console.log(`Producer ${action}ed successfully`);
+        console.log(`Producer ${action}ed successfully:`, data.message);
+        // Refresh stats to show updated status
+        setTimeout(() => {
+          fetchData();
+        }, 500);
+      } else {
+        console.error(`Failed to ${action} producer:`, data);
+        alert(`Error: ${data.error || `Failed to ${action} producer`}`);
       }
     } catch (error) {
       console.error(`Error ${action}ing producer:`, error);
+      alert(`Error ${action}ing producer. Please check console for details.`);
     }
   };
 

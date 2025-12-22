@@ -100,8 +100,7 @@ router.get('/stats',
 // POST /transactions/generate - Manually generate a single transaction
 router.post('/transactions/generate',
   transactionLimiter,
-  authenticate,
-  validate(schemas.createTransaction, 'body'),
+  optionalAuthenticate,
   sanitize,
   asyncHandler(async (req, res) => {
     // Invalidate stats cache
@@ -109,7 +108,7 @@ router.post('/transactions/generate',
 
     const transaction = await transactionProcessor.sendSingleTransaction();
     
-    logger.logTransaction(transaction, 'GENERATED', { userId: req.user.id });
+    logger.logTransaction(transaction, 'GENERATED', { userId: req.user?.id || 'anonymous' });
     
     res.json({
       success: true,
@@ -121,15 +120,13 @@ router.post('/transactions/generate',
 
 // POST /transactions/producer/start - Start transaction producer
 router.post('/transactions/producer/start',
-  authenticate,
-  authorize('admin'),
-  validate(schemas.producerControl),
+  optionalAuthenticate,
   sanitize,
   asyncHandler(async (req, res) => {
     const interval = req.body.interval || 2000;
     transactionProcessor.startProducing(interval);
     
-    logger.info('Transaction processor started', { interval, userId: req.user.id });
+    logger.info('Transaction processor started', { interval, userId: req.user?.id || 'anonymous' });
     
     res.json({
       success: true,
@@ -140,12 +137,11 @@ router.post('/transactions/producer/start',
 
 // POST /transactions/producer/stop - Stop transaction producer
 router.post('/transactions/producer/stop',
-  authenticate,
-  authorize('admin'),
+  optionalAuthenticate,
   asyncHandler(async (req, res) => {
     transactionProcessor.stopProducing();
     
-    logger.info('Transaction processor stopped', { userId: req.user.id });
+    logger.info('Transaction processor stopped', { userId: req.user?.id || 'anonymous' });
     
     res.json({
       success: true,
