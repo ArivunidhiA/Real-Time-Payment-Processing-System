@@ -72,18 +72,18 @@ const TransactionTable: React.FC<TransactionTableProps> = ({ transactions, isLoa
       >
         <h3 className="text-lg font-bold text-white mb-4">Recent Transactions</h3>
         <div className="overflow-x-auto">
-          <table className="min-w-full">
-            <thead>
-              <tr className="border-b border-white/10">
-                <th className="px-6 py-3 text-left text-xs font-medium text-white/70 uppercase tracking-wider">ID</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-white/70 uppercase tracking-wider">User</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-white/70 uppercase tracking-wider">Amount</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-white/70 uppercase tracking-wider">Merchant</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-white/70 uppercase tracking-wider">Status</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-white/70 uppercase tracking-wider">Time</th>
+          <table className="min-w-full bg-transparent">
+            <thead className="bg-transparent">
+              <tr className="border-b border-white/20">
+                <th className="px-6 py-3 text-left text-xs font-semibold text-white uppercase tracking-wider">ID</th>
+                <th className="px-6 py-3 text-left text-xs font-semibold text-white uppercase tracking-wider">User</th>
+                <th className="px-6 py-3 text-left text-xs font-semibold text-white uppercase tracking-wider">Amount</th>
+                <th className="px-6 py-3 text-left text-xs font-semibold text-white uppercase tracking-wider">Merchant</th>
+                <th className="px-6 py-3 text-left text-xs font-semibold text-white uppercase tracking-wider">Status</th>
+                <th className="px-6 py-3 text-left text-xs font-semibold text-white uppercase tracking-wider">Time</th>
               </tr>
             </thead>
-            <tbody>
+            <tbody className="bg-transparent">
               {[...Array(5)].map((_, i) => (
                 <tr key={i} className="animate-pulse border-b border-white/5">
                   <td className="px-6 py-4 whitespace-nowrap">
