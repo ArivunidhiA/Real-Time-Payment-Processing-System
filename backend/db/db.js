@@ -1,4 +1,6 @@
 const { Pool } = require('pg');
+const fs = require('fs');
+const path = require('path');
 require('dotenv').config();
 
 const pool = new Pool({
@@ -14,6 +16,54 @@ pool.on('connect', () => {
 pool.on('error', (err) => {
   console.error('Database connection error:', err);
 });
+
+// Initialize database schema
+async function initializeSchema() {
+  try {
+    // Check if transactions table exists
+    const checkTable = await pool.query(`
+      SELECT EXISTS (
+        SELECT FROM information_schema.tables 
+        WHERE table_schema = 'public' 
+        AND table_name = 'transactions'
+      );
+    `);
+    
+    if (!checkTable.rows[0].exists) {
+      console.log('Database schema not found. Initializing...');
+      
+      // Read and execute schema.sql
+      const schemaPath = path.join(__dirname, 'schema.sql');
+      const schemaSQL = fs.readFileSync(schemaPath, 'utf8');
+      
+      // Split by semicolons and execute each statement
+      const statements = schemaSQL
+        .split(';')
+        .map(s => s.trim())
+        .filter(s => s.length > 0 && !s.startsWith('--'));
+      
+      for (const statement of statements) {
+        if (statement.trim()) {
+          try {
+            await pool.query(statement);
+          } catch (err) {
+            // Ignore errors for IF NOT EXISTS statements
+            if (!err.message.includes('already exists')) {
+              console.error('Schema initialization error:', err.message);
+            }
+          }
+        }
+      }
+      
+      console.log('Database schema initialized successfully');
+    } else {
+      console.log('Database schema already exists');
+    }
+  } catch (error) {
+    console.error('Error initializing database schema:', error);
+    throw error;
+  }
+}
 
 // Database helper functions
 const db = {
@@ -198,4 +248,7 @@ const db = {
   }
 };
 
-module.exports = { pool, db };
+// Export initialization function
+db.initializeSchema = initializeSchema;
+
+module.exports = { pool, db, initializeSchema };

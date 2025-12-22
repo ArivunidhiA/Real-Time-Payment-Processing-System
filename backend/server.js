@@ -20,6 +20,7 @@ const routes = require('./routes');
 const TransactionProcessor = require('./services/transactionProcessor');
 const { errorHandler, notFoundHandler } = require('./middleware/errorHandler');
 const logger = require('./utils/logger');
+const { initializeSchema } = require('./db/db');
 
 const app = express();
 const server = http.createServer(app);
