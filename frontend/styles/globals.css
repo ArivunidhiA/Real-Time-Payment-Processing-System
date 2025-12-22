@@ -79,43 +79,32 @@
     color: #ffffff !important;
   }
   
-  /* Ensure status badge text is black - highest priority - multiple selectors for maximum specificity */
-  .text-black,
-  span.text-black,
-  [class*="rounded-full"] span.text-black,
-  [class*="bg-green-500/20"] span.text-black,
-  [class*="bg-red-500/20"] span.text-black,
-  [class*="bg-yellow-500/20"] span.text-black,
-  [class*="bg-gray-500/20"] span.text-black,
-  [class*="rounded-full"][class*="text-black"] span.text-black,
-  [class*="rounded-full"][class*="text-black"] span:not(.icon-glow),
-  [class*="bg-green-500/20"][class*="text-black"] span:not(.icon-glow),
-  [class*="bg-red-500/20"][class*="text-black"] span:not(.icon-glow),
-  [class*="bg-yellow-500/20"][class*="text-black"] span:not(.icon-glow),
-  [class*="bg-gray-500/20"][class*="text-black"] span:not(.icon-glow),
-  td span[class*="rounded-full"] span.text-black,
-  td [class*="bg-green-500/20"] span.text-black,
-  td [class*="bg-red-500/20"] span.text-black,
-  td [class*="rounded-full"] span[style*="color: #000000"],
-  td [class*="bg-green-500/20"] span[style*="color: #000000"],
-  td [class*="bg-red-500/20"] span[style*="color: #000000"] {
+  /* Status badge text - black with maximum specificity */
+  .status-text-black,
+  span.status-text-black,
+  [class*="rounded-full"] span.status-text-black,
+  [class*="bg-green-500/20"] span.status-text-black,
+  [class*="bg-red-500/20"] span.status-text-black,
+  [class*="bg-yellow-500/20"] span.status-text-black,
+  [class*="bg-gray-500/20"] span.status-text-black,
+  td span.status-text-black,
+  td [class*="bg-green-500/20"] span.status-text-black:not(.icon-glow),
+  td [class*="bg-red-500/20"] span.status-text-black:not(.icon-glow),
+  td [class*="bg-yellow-500/20"] span.status-text-black:not(.icon-glow),
+  td [class*="rounded-full"] span.status-text-black:not(.icon-glow) {
     color: #000000 !important;
     font-weight: bold !important;
   }
   
-  /* Override any white text on status badges - even more specific */
-  [class*="bg-green-500/20"][class*="text-black"],
-  [class*="bg-red-500/20"][class*="text-black"],
-  [class*="bg-yellow-500/20"][class*="text-black"],
-  [class*="bg-gray-500/20"][class*="text-black"],
-  [class*="bg-green-500/20"][style*="color: #000000"],
-  [class*="bg-red-500/20"][style*="color: #000000"] {
+  /* Also target text-black class */
+  .text-black,
+  span.text-black,
+  [class*="rounded-full"] span.text-black:not(.icon-glow),
+  [class*="bg-green-500/20"] span.text-black:not(.icon-glow),
+  [class*="bg-red-500/20"] span.text-black:not(.icon-glow),
+  td span.text-black:not(.icon-glow) {
     color: #000000 !important;
-  }
-  
-  /* Force black text on status badge spans with inline styles */
-  span[style*="color: #000000"] {
-    color: #000000 !important;
+    font-weight: bold !important;
   }
   
   /* Override any gray text */

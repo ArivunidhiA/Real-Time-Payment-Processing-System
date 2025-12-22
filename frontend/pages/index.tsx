@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import Head from 'next/head';
-import { EtherealShadow } from '@/components/ui/ethereal-shadow';
+import { Component as EtherealShadow } from '@/components/ui/ethereal-shadow';
 import { Button } from '@/components/ui/neon-button';
 import StatsCards from '../components/StatsCards';
 import VolumeChart from '../components/VolumeChart';
@@ -226,7 +226,7 @@ export default function Dashboard() {
 
       <div className="fixed inset-0 bg-black -z-20" />
       <EtherealShadow
-        color="rgba(99, 102, 241, 0.4)"
+        color="rgba(99, 102, 241, 0.6)"
         animation={{ scale: 100, speed: 90 }}
         noise={{ opacity: 0.6, scale: 1.2 }}
         sizing="fill"

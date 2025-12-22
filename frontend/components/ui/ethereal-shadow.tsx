@@ -54,7 +54,7 @@ const useInstanceId = (): string => {
     return instanceId;
 };
 
-export function EtherealShadow({
+export function Component({
     sizing = 'fill',
     color = 'rgba(128, 128, 128, 1)',
     animation,
@@ -188,3 +188,5 @@ export function EtherealShadow({
     );
 }
 
+// Export as EtherealShadow for backward compatibility
+export const EtherealShadow = Component;
