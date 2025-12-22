@@ -118,7 +118,7 @@ const TransactionTable: React.FC<TransactionTableProps> = ({ transactions, isLoa
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5 }}
-      className="bg-white/5 backdrop-blur-lg rounded-xl border border-white/20 p-6 shadow-xl card-glow"
+      className="bg-white/5 backdrop-blur-lg rounded-xl border border-white/20 p-6 card-glow"
     >
       <h3 className="text-lg font-bold mb-6" style={{ color: '#ffffff' }}>Recent Transactions</h3>
       <div className="overflow-x-auto">
