@@ -158,7 +158,7 @@ const TransactionTable: React.FC<TransactionTableProps> = ({ transactions, isLoa
                   <td className="px-6 py-4 whitespace-nowrap">
                     <span className={getStatusBadge(transaction.status)}>
                       <span className="icon-glow">{getStatusIcon(transaction.status)}</span>
-                      <span className="status-text-black">{transaction.status}</span>
+                      <span className="status-text-black" style={{ color: '#000000', fontWeight: 'bold' }}>{transaction.status}</span>
                     </span>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm font-medium" style={{ color: '#ffffff' }}>

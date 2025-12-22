@@ -225,12 +225,14 @@ export default function Dashboard() {
       </Head>
 
       <div className="fixed inset-0 bg-black -z-20" />
-      <EtherealShadow
-        color="rgba(99, 102, 241, 0.6)"
-        animation={{ scale: 100, speed: 90 }}
-        noise={{ opacity: 0.6, scale: 1.2 }}
-        sizing="fill"
-      />
+      <div className="fixed inset-0 -z-10">
+        <EtherealShadow
+          color="rgba(99, 102, 241, 0.8)"
+          animation={{ scale: 100, speed: 90 }}
+          noise={{ opacity: 0.8, scale: 1.2 }}
+          sizing="fill"
+        />
+      </div>
       <div className="relative z-10 min-h-screen overflow-y-auto">
           {/* Header */}
           <motion.header
