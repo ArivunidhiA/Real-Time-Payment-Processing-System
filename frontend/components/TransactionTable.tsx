@@ -36,30 +36,37 @@ const TransactionTable: React.FC<TransactionTableProps> = ({ transactions, isLoa
   };
 
   const getStatusBadge = (status: string) => {
-    const baseClasses = "px-3 py-1 rounded-full text-xs font-bold flex items-center gap-1.5";
+    const baseClasses = "px-3 py-1.5 rounded-full text-xs font-bold flex items-center gap-2";
     
     switch (status) {
       case 'APPROVED':
-        return `${baseClasses} bg-green-600 text-black border border-green-700`;
+        return (
+          <span className={`${baseClasses} bg-green-600 text-black`}>
+            <CheckCircle2 className="w-3.5 h-3.5 text-black" />
+            <span className="text-black font-bold">APPROVED</span>
+          </span>
+        );
       case 'DECLINED':
-        return `${baseClasses} bg-red-600 text-black border border-red-700`;
+        return (
+          <span className={`${baseClasses} bg-red-600 text-black`}>
+            <XCircle className="w-3.5 h-3.5 text-black" />
+            <span className="text-black font-bold">DECLINED</span>
+          </span>
+        );
       case 'PENDING':
-        return `${baseClasses} bg-yellow-600 text-black border border-yellow-700`;
+        return (
+          <span className={`${baseClasses} bg-yellow-600 text-black`}>
+            <Clock className="w-3.5 h-3.5 text-black" />
+            <span className="text-black font-bold">PENDING</span>
+          </span>
+        );
       default:
-        return `${baseClasses} bg-gray-600 text-black border border-gray-700`;
-    }
-  };
-
-  const getStatusIcon = (status: string) => {
-    switch (status) {
-      case 'APPROVED':
-        return <CheckCircle2 className="w-3.5 h-3.5" />;
-      case 'DECLINED':
-        return <XCircle className="w-3.5 h-3.5" />;
-      case 'PENDING':
-        return <Clock className="w-3.5 h-3.5" />;
-      default:
-        return <FileText className="w-3.5 h-3.5" />;
+        return (
+          <span className={`${baseClasses} bg-gray-600 text-black`}>
+            <FileText className="w-3.5 h-3.5 text-black" />
+            <span className="text-black font-bold">{status}</span>
+          </span>
+        );
     }
   };
 
@@ -156,10 +163,7 @@ const TransactionTable: React.FC<TransactionTableProps> = ({ transactions, isLoa
                     {transaction.merchant}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
-                    <span className={getStatusBadge(transaction.status)}>
-                      <span className="icon-glow">{getStatusIcon(transaction.status)}</span>
-                      <span style={{ color: '#000000', fontWeight: 'bold' }}>{transaction.status}</span>
-                    </span>
+                    {getStatusBadge(transaction.status)}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm font-medium" style={{ color: '#ffffff' }}>
                     {formatTimestamp(transaction.timestamp)}
