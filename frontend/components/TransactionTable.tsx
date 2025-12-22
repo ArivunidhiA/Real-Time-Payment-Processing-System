@@ -36,35 +36,33 @@ const TransactionTable: React.FC<TransactionTableProps> = ({ transactions, isLoa
   };
 
   const getStatusBadge = (status: string) => {
-    const baseClasses = "px-3 py-1.5 rounded-full text-xs font-bold flex items-center gap-2";
-    
     switch (status) {
       case 'APPROVED':
         return (
-          <span className={`${baseClasses} bg-green-600 text-black`}>
-            <CheckCircle2 className="w-3.5 h-3.5 text-black" />
-            <span className="text-black font-bold">APPROVED</span>
+          <span className="flex items-center gap-2">
+            <CheckCircle2 className="w-3.5 h-3.5 text-green-400 icon-glow-green" />
+            <span className="text-green-400 font-bold text-glow-green">APPROVED</span>
           </span>
         );
       case 'DECLINED':
         return (
-          <span className={`${baseClasses} bg-red-600 text-black`}>
-            <XCircle className="w-3.5 h-3.5 text-black" />
-            <span className="text-black font-bold">DECLINED</span>
+          <span className="flex items-center gap-2">
+            <XCircle className="w-3.5 h-3.5 text-red-400 icon-glow-red" />
+            <span className="text-red-400 font-bold text-glow-red">DECLINED</span>
           </span>
         );
       case 'PENDING':
         return (
-          <span className={`${baseClasses} bg-yellow-600 text-black`}>
-            <Clock className="w-3.5 h-3.5 text-black" />
-            <span className="text-black font-bold">PENDING</span>
+          <span className="flex items-center gap-2">
+            <Clock className="w-3.5 h-3.5 text-yellow-400 icon-glow" />
+            <span className="text-yellow-400 font-bold text-glow">PENDING</span>
           </span>
         );
       default:
         return (
-          <span className={`${baseClasses} bg-gray-600 text-black`}>
-            <FileText className="w-3.5 h-3.5 text-black" />
-            <span className="text-black font-bold">{status}</span>
+          <span className="flex items-center gap-2">
+            <FileText className="w-3.5 h-3.5 text-gray-400 icon-glow" />
+            <span className="text-gray-400 font-bold text-glow">{status}</span>
           </span>
         );
     }

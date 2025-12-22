@@ -66,34 +66,9 @@
   /* Force all text in dashboard to be white (except status badges) */
   .card p,
   .card h3,
-  .card span:not([class*="bg-green-600"]):not([class*="bg-red-600"]):not([class*="bg-yellow-600"]):not([class*="bg-gray-600"]),
+  .card span:not(.text-green-400):not(.text-red-400):not(.text-yellow-400):not(.text-gray-400),
   .card div {
     color: #ffffff !important;
-  }
-  
-  /* Status badge - ensure black text on colored backgrounds */
-  [class*="bg-green-600"] span.text-black,
-  [class*="bg-red-600"] span.text-black,
-  [class*="bg-yellow-600"] span.text-black,
-  [class*="bg-gray-600"] span.text-black,
-  [class*="bg-green-600"] .text-black,
-  [class*="bg-red-600"] .text-black,
-  [class*="bg-yellow-600"] .text-black,
-  [class*="bg-gray-600"] .text-black,
-  td [class*="bg-green-600"] span,
-  td [class*="bg-red-600"] span,
-  td [class*="bg-yellow-600"] span,
-  td [class*="bg-gray-600"] span {
-    color: #000000 !important;
-  }
-  
-  /* Status badge icons - black */
-  [class*="bg-green-600"] svg,
-  [class*="bg-red-600"] svg,
-  [class*="bg-yellow-600"] svg,
-  [class*="bg-gray-600"] svg {
-    color: #000000 !important;
-    fill: #000000 !important;
   }
   
   /* Override any gray text */
@@ -155,6 +130,12 @@
     text-shadow: 0 0 10px rgba(74, 222, 128, 0.8),
                  0 0 20px rgba(74, 222, 128, 0.6),
                  0 0 30px rgba(74, 222, 128, 0.4);
+  }
+  
+  .text-glow-red {
+    text-shadow: 0 0 10px rgba(248, 113, 113, 0.8),
+                 0 0 20px rgba(248, 113, 113, 0.6),
+                 0 0 30px rgba(248, 113, 113, 0.4);
   }
   
   .text-glow-blue {
