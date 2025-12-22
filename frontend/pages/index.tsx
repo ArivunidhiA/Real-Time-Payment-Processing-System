@@ -4,7 +4,7 @@ import { Component as EtherealShadow } from '@/components/ui/ethereal-shadow';
 import { Button } from '@/components/ui/neon-button';
 import StatsCards from '../components/StatsCards';
 import VolumeChart from '../components/VolumeChart';
-import TransactionTable from '../components/TransactionTable.tsx';
+import TransactionTable from '../components/TransactionTable';
 import { Play, Square, RefreshCw, Wifi, WifiOff } from 'lucide-react';
 import { motion } from 'framer-motion';
 
