@@ -66,12 +66,12 @@
   /* Force all text in dashboard to be white (except status badges) */
   .card p,
   .card h3,
-  .card span:not(.text-black):not([class*="text-black"]):not(.status-text-black),
+  .card span:not([class*="bg-green-600"]):not([class*="bg-red-600"]):not([class*="bg-yellow-600"]):not([class*="bg-gray-600"]),
   .card div {
     color: #ffffff !important;
   }
   
-  /* Status badge text - black for dark backgrounds */
+  /* Status badge text - black for dark backgrounds (bg-600) */
   td span[class*="bg-green-600"] span:not(.icon-glow),
   td span[class*="bg-red-600"] span:not(.icon-glow),
   td span[class*="bg-yellow-600"] span:not(.icon-glow),
