@@ -224,10 +224,11 @@ export default function Dashboard() {
         <link rel="icon" href="/favicon.ico" />
       </Head>
 
+      <div className="fixed inset-0 bg-black -z-20" />
       <EtherealShadow
-        color="rgba(128, 128, 128, 1)"
+        color="rgba(99, 102, 241, 0.6)"
         animation={{ scale: 100, speed: 90 }}
-        noise={{ opacity: 1, scale: 1.2 }}
+        noise={{ opacity: 0.8, scale: 1.2 }}
         sizing="fill"
       />
       <div className="relative z-10 min-h-screen overflow-y-auto">
