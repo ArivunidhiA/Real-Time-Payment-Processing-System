@@ -63,6 +63,14 @@
     color: #ffffff !important;
   }
   
+  /* Exception: Status column cells should allow colored text */
+  td:has(span.text-green-400),
+  td:has(span.text-red-400),
+  td:has(span.text-yellow-400),
+  td:has(span.text-gray-400) {
+    color: inherit !important;
+  }
+  
   /* Force all text in dashboard to be white (except status badges) */
   .card p,
   .card h3,
@@ -71,12 +79,23 @@
     color: #ffffff !important;
   }
   
-  /* Override any gray text */
+  /* Ensure status text colors are not overridden */
+  td span.text-green-400,
+  td span.text-red-400,
+  td span.text-yellow-400,
+  td span.text-gray-400,
+  .text-green-400,
+  .text-red-400,
+  .text-yellow-400,
+  .text-gray-400 {
+    color: inherit !important;
+  }
+  
+  /* Override any gray text (but not status colors) */
   .text-gray-800,
   .text-gray-700,
   .text-gray-600,
   .text-gray-500,
-  .text-gray-400,
   .text-gray-300,
   .text-gray-200,
   .text-gray-100,
