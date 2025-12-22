@@ -1,10 +1,10 @@
 [build]
-  # Base directory for the project
-  base = "."
-  # Build command for Next.js frontend
-  command = "cd frontend && npm install && npm run build"
-  # Publish directory for Next.js (must be .next or frontend/.next)
-  publish = "frontend/.next"
+  # Base directory for the project (set to frontend so publish can be .next)
+  base = "frontend"
+  # Build command for Next.js frontend (no need for cd since base is frontend)
+  command = "npm install && npm run build"
+  # Publish directory for Next.js (relative to base directory)
+  publish = ".next"
 
 [build.environment]
   NODE_VERSION = "18"
