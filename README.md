@@ -39,37 +39,24 @@ A high-performance payment processing system that simulates real-world fintech i
 - WebSocket-based live transaction streaming
 - Automatic stats refresh on new transactions
 - Real-time balance validation and updates
-- Transaction producer with configurable intervals
 
 ### 🛡️ Security & Fraud Detection
 - Automated fraud risk scoring (0-1 scale)
-- Velocity checks (transactions per time window)
-- Amount-based anomaly detection
+- Velocity checks and amount-based anomaly detection
 - Merchant reputation analysis
-- User behavior pattern recognition
 
 ### 📊 Analytics & Monitoring
 - Real-time transaction volume charts
-- Approval rate tracking
-- System latency metrics
+- Approval rate tracking and system latency metrics
 - Uptime monitoring (99.99% target)
-- Transaction history with filtering
 
 ### 🎨 User Interface
-- Modern dark-themed dashboard
-- Animated background effects (Ethereal Shadow)
-- Responsive design (mobile-friendly)
-- Interactive charts and visualizations
-- Glassmorphism UI components
+- Modern dark-themed dashboard with animated effects
+- Responsive design with interactive visualizations
 
 ### 🔧 Production Features
-- JWT-based authentication
-- Rate limiting (Redis-backed)
-- Request validation & sanitization
-- Comprehensive error handling
-- Structured logging (Winston)
-- Health check endpoints
-- Keep-alive service (prevents Render spin-down)
+- JWT authentication, rate limiting, request validation
+- Structured logging, health checks, keep-alive service
 
 ## 🏗️ Architecture
 
@@ -172,30 +159,22 @@ A high-performance payment processing system that simulates real-world fintech i
 ### Local Development
 
 ```bash
-# 1. Clone repository
+# Clone and setup
 git clone https://github.com/ArivunidhiA/Real-Time-Payment-Processing-System.git
 cd Real-Time-Payment-Processing-System
 
-# 2. Start PostgreSQL (Docker)
+# Start PostgreSQL
 docker-compose up -d postgres
 
-# 3. Setup Backend
-cd backend
-npm install
-cp env.example .env
-# Edit .env with your DATABASE_URL
-npm start
+# Backend
+cd backend && npm install && cp env.example .env
+# Edit .env with DATABASE_URL, then: npm start
 
-# 4. Setup Frontend (new terminal)
-cd frontend
-npm install
-cp env.example .env.local
-# Edit .env.local with NEXT_PUBLIC_BACKEND_URL=http://localhost:3001
-npm run dev
+# Frontend (new terminal)
+cd frontend && npm install && cp env.example .env.local
+# Edit .env.local with NEXT_PUBLIC_BACKEND_URL=http://localhost:3001, then: npm run dev
 
-# 5. Access application
-# Frontend: http://localhost:3000
-# Backend API: http://localhost:3001
+# Access: http://localhost:3000 (frontend) | http://localhost:3001 (backend)
 ```
 
 ## 📡 API Documentation
@@ -236,36 +215,17 @@ wss://your-backend.onrender.com/stream (production)
 ## 🌐 Deployment
 
 ### Backend (Render)
-
-1. **Create PostgreSQL Database** on Render
-2. **Create Web Service** → Connect GitHub repo
-3. **Configure:**
-   - Build Command: `cd backend && npm install`
-   - Start Command: `cd backend && npm start`
-   - Environment Variables:
-     ```env
-     DATABASE_URL=<render-postgres-url>
-     NODE_ENV=production
-     PORT=10000
-     ENABLE_KEEP_ALIVE=true
-     SERVICE_URL=https://your-backend.onrender.com
-     ```
-4. **Deploy** → Service auto-deploys on git push
+1. Create PostgreSQL database on Render
+2. Create Web Service → Connect GitHub repo
+3. Set build: `cd backend && npm install`, start: `cd backend && npm start`
+4. Add env vars: `DATABASE_URL`, `NODE_ENV=production`, `PORT=10000`, `ENABLE_KEEP_ALIVE=true`, `SERVICE_URL`
 
 ### Frontend (Netlify)
+1. Import repository on Netlify
+2. Set base: `frontend`, build: `npm install && npm run build`, publish: `.next`
+3. Add env var: `NEXT_PUBLIC_BACKEND_URL=https://your-backend.onrender.com`
 
-1. **Import Repository** on Netlify
-2. **Configure:**
-   - Base Directory: `frontend`
-   - Build Command: `npm install && npm run build`
-   - Publish Directory: `.next`
-   - Environment Variable:
-     ```env
-     NEXT_PUBLIC_BACKEND_URL=https://your-backend.onrender.com
-     ```
-3. **Deploy** → Site auto-deploys on git push
-
-📖 **Detailed Guides:** See `RENDER_BACKEND_DEPLOYMENT.md` and `NETLIFY_DEPLOYMENT.md`
+📖 **Detailed Guides:** `RENDER_BACKEND_DEPLOYMENT.md` | `NETLIFY_DEPLOYMENT.md`
 
 ## 📁 Project Structure
 
