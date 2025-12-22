@@ -21,7 +21,7 @@ const VolumeChart: React.FC<VolumeChartProps> = ({ data }) => {
       >
         <div className="flex items-center gap-3 mb-4">
           <BarChart3 className="w-6 h-6 icon-glow" style={{ color: '#ffffff' }} />
-          <h3 className="text-lg font-bold text-glow" style={{ color: '#ffffff' }}>Transaction Volume (Last Hour)</h3>
+          <h3 className="text-lg font-bold" style={{ color: '#ffffff' }}>Transaction Volume (Last Hour)</h3>
         </div>
         <div className="h-64 flex items-center justify-center">
           <p style={{ color: '#ffffff' }}>No data available</p>
@@ -68,7 +68,7 @@ const VolumeChart: React.FC<VolumeChartProps> = ({ data }) => {
     >
       <div className="flex items-center gap-3 mb-6">
         <BarChart3 className="w-6 h-6 icon-glow" style={{ color: '#ffffff' }} />
-        <h3 className="text-lg font-bold text-glow" style={{ color: '#ffffff' }}>Transaction Volume (Last Hour)</h3>
+        <h3 className="text-lg font-bold" style={{ color: '#ffffff' }}>Transaction Volume (Last Hour)</h3>
       </div>
       <div className="h-80">
         <ResponsiveContainer width="100%" height="100%">

@@ -241,10 +241,10 @@ export default function Dashboard() {
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
               <div className="flex justify-between items-center py-4">
                 <div>
-                  <h1 className="text-3xl font-bold bg-gradient-to-r from-white to-white/70 bg-clip-text text-transparent text-glow-strong">
+                  <h1 className="text-3xl font-bold bg-gradient-to-r from-white to-white/70 bg-clip-text text-transparent">
                     Real-Time Payment Dashboard
                   </h1>
-                  <p className="text-sm text-white/90 mt-1 font-medium text-glow">Live transaction monitoring and analytics</p>
+                  <p className="text-sm text-white/90 mt-1 font-medium">Live transaction monitoring and analytics</p>
                 </div>
                 <div className="flex items-center gap-4">
                   <motion.div
@@ -256,7 +256,7 @@ export default function Dashboard() {
                     ) : (
                       <WifiOff className="w-4 h-4 icon-glow" />
                     )}
-                    <span className="text-xs font-medium text-glow">
+                    <span className="text-xs font-medium">
                       {connectionStatus === 'connected' ? 'Live' : 'Offline'}
                     </span>
                   </motion.div>
@@ -305,10 +305,10 @@ export default function Dashboard() {
                     </Button>
                   </div>
                   <div className="text-sm text-white space-y-2 pt-4 border-t border-white/20">
-                    <p><strong className="text-white font-bold text-glow">Total Transactions:</strong> <span className="font-semibold text-glow">{stats?.totalTransactions || 0}</span></p>
-                    <p><strong className="text-white font-bold text-glow">Approved:</strong> <span className="font-semibold text-green-400 text-glow-green">{stats?.approvedTransactions || 0}</span></p>
-                    <p><strong className="text-white font-bold text-glow">Declined:</strong> <span className="font-semibold text-red-400 text-glow">{stats?.declinedTransactions || 0}</span></p>
-                    <p><strong className="text-white font-bold text-glow">Total Volume:</strong> <span className="font-semibold text-blue-400 text-glow-blue">${(stats?.totalVolume || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span></p>
+                    <p><strong className="text-white font-bold">Total Transactions:</strong> <span className="font-semibold">{stats?.totalTransactions || 0}</span></p>
+                    <p><strong className="text-white font-bold">Approved:</strong> <span className="font-semibold text-green-400">{stats?.approvedTransactions || 0}</span></p>
+                    <p><strong className="text-white font-bold">Declined:</strong> <span className="font-semibold text-red-400">{stats?.declinedTransactions || 0}</span></p>
+                    <p><strong className="text-white font-bold">Total Volume:</strong> <span className="font-semibold text-blue-400">${(stats?.totalVolume || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span></p>
                   </div>
                 </div>
               </motion.div>

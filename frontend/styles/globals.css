@@ -47,12 +47,18 @@
     color: #ffffff !important;
   }
   
-  /* Force all text in dashboard to be white */
+  /* Force all text in dashboard to be white (except status badges) */
   .card p,
   .card h3,
-  .card span,
+  .card span:not([style*="color: #000000"]),
   .card div {
     color: #ffffff !important;
+  }
+  
+  /* Ensure status badge text is black */
+  .card span[style*="color: #000000"],
+  span[style*="color: #000000"] {
+    color: #000000 !important;
   }
   
   /* Override any gray text */
