@@ -224,7 +224,7 @@ export default function Dashboard() {
       </Head>
 
       <DottedSurface />
-      <div className="relative z-10 min-h-screen overflow-y-auto bg-gradient-to-b from-slate-900 via-slate-800 to-slate-900">
+      <div className="relative z-10 min-h-screen overflow-y-auto">
           {/* Header */}
           <motion.header
             initial={{ opacity: 0, y: -20 }}
