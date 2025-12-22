@@ -43,10 +43,10 @@ const VolumeChart: React.FC<VolumeChartProps> = ({ data }) => {
   const CustomTooltip = ({ active, payload, label }: any) => {
     if (active && payload && payload.length) {
       return (
-        <div className="bg-white/95 backdrop-blur-sm rounded-lg shadow-xl p-3 border border-white/20">
-          <p className="text-sm font-semibold text-gray-800 mb-2">{`Time: ${label}`}</p>
+        <div className="bg-black/80 backdrop-blur-md rounded-lg shadow-xl p-3 border border-white/20">
+          <p className="text-sm font-semibold text-white mb-2">{`Time: ${label}`}</p>
           {payload.map((entry: any, index: number) => (
-            <p key={index} className="text-sm" style={{ color: entry.color }}>
+            <p key={index} className="text-sm font-medium text-white" style={{ color: entry.color || '#fff' }}>
               {entry.name === 'volume' ? 'Volume' : 'Count'}:{' '}
               {entry.name === 'volume' 
                 ? `$${entry.value.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`

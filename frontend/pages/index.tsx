@@ -226,9 +226,9 @@ export default function Dashboard() {
 
       <div className="fixed inset-0 bg-black -z-20" />
       <EtherealShadow
-        color="rgba(99, 102, 241, 0.6)"
+        color="rgba(99, 102, 241, 0.4)"
         animation={{ scale: 100, speed: 90 }}
-        noise={{ opacity: 0.8, scale: 1.2 }}
+        noise={{ opacity: 0.6, scale: 1.2 }}
         sizing="fill"
       />
       <div className="relative z-10 min-h-screen overflow-y-auto">
@@ -244,7 +244,7 @@ export default function Dashboard() {
                   <h1 className="text-3xl font-bold bg-gradient-to-r from-white to-white/70 bg-clip-text text-transparent">
                     Real-Time Payment Dashboard
                   </h1>
-                  <p className="text-sm text-white/60 mt-1">Live transaction monitoring and analytics</p>
+                  <p className="text-sm text-white/90 mt-1 font-medium">Live transaction monitoring and analytics</p>
                 </div>
                 <div className="flex items-center gap-4">
                   <motion.div
@@ -304,11 +304,11 @@ export default function Dashboard() {
                       Stop Producer
                     </Button>
                   </div>
-                  <div className="text-sm text-white/70 space-y-2 pt-4 border-t border-white/10">
-                    <p><strong className="text-white">Total Transactions:</strong> {stats?.totalTransactions || 0}</p>
-                    <p><strong className="text-white">Approved:</strong> {stats?.approvedTransactions || 0}</p>
-                    <p><strong className="text-white">Declined:</strong> {stats?.declinedTransactions || 0}</p>
-                    <p><strong className="text-white">Total Volume:</strong> ${(stats?.totalVolume || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</p>
+                  <div className="text-sm text-white space-y-2 pt-4 border-t border-white/20">
+                    <p><strong className="text-white font-bold">Total Transactions:</strong> <span className="font-semibold">{stats?.totalTransactions || 0}</span></p>
+                    <p><strong className="text-white font-bold">Approved:</strong> <span className="font-semibold text-green-400">{stats?.approvedTransactions || 0}</span></p>
+                    <p><strong className="text-white font-bold">Declined:</strong> <span className="font-semibold text-red-400">{stats?.declinedTransactions || 0}</span></p>
+                    <p><strong className="text-white font-bold">Total Volume:</strong> <span className="font-semibold text-blue-400">${(stats?.totalVolume || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span></p>
                   </div>
                 </div>
               </motion.div>
@@ -321,7 +321,7 @@ export default function Dashboard() {
           {/* Footer */}
           <footer className="bg-white/5 backdrop-blur-xl border-t border-white/10 mt-12">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-              <div className="text-center text-sm text-white/60">
+              <div className="text-center text-sm text-white/90 font-medium">
                 <p>Real-Time Payment Processing System - Built with Next.js, Node.js, and PostgreSQL</p>
               </div>
             </div>

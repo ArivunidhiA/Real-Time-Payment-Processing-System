@@ -125,12 +125,12 @@ const TransactionTable: React.FC<TransactionTableProps> = ({ transactions, isLoa
         <table className="min-w-full">
           <thead>
             <tr className="border-b border-white/10">
-              <th className="px-6 py-3 text-left text-xs font-medium text-white/70 uppercase tracking-wider">ID</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-white/70 uppercase tracking-wider">User</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-white/70 uppercase tracking-wider">Amount</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-white/70 uppercase tracking-wider">Merchant</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-white/70 uppercase tracking-wider">Status</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-white/70 uppercase tracking-wider">Time</th>
+              <th className="px-6 py-3 text-left text-xs font-semibold text-white uppercase tracking-wider">ID</th>
+              <th className="px-6 py-3 text-left text-xs font-semibold text-white uppercase tracking-wider">User</th>
+              <th className="px-6 py-3 text-left text-xs font-semibold text-white uppercase tracking-wider">Amount</th>
+              <th className="px-6 py-3 text-left text-xs font-semibold text-white uppercase tracking-wider">Merchant</th>
+              <th className="px-6 py-3 text-left text-xs font-semibold text-white uppercase tracking-wider">Status</th>
+              <th className="px-6 py-3 text-left text-xs font-semibold text-white uppercase tracking-wider">Time</th>
             </tr>
           </thead>
           <tbody>
@@ -143,16 +143,16 @@ const TransactionTable: React.FC<TransactionTableProps> = ({ transactions, isLoa
                   transition={{ duration: 0.3, delay: index * 0.05 }}
                   className="border-b border-white/5 hover:bg-white/5 transition-colors"
                 >
-                  <td className="px-6 py-4 whitespace-nowrap text-sm font-mono text-white/90">
+                  <td className="px-6 py-4 whitespace-nowrap text-sm font-mono text-white font-medium">
                     {transaction.transaction_id?.substring(0, 12)}...
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-white/90">
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-white font-medium">
                     User {transaction.user_id}
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm font-semibold text-white">
+                  <td className="px-6 py-4 whitespace-nowrap text-sm font-bold text-white">
                     {formatAmount(transaction.amount)}
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-white/90">
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-white font-medium">
                     {transaction.merchant}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
@@ -161,7 +161,7 @@ const TransactionTable: React.FC<TransactionTableProps> = ({ transactions, isLoa
                       {transaction.status}
                     </span>
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-white/70">
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-white font-medium">
                     {formatTimestamp(transaction.timestamp)}
                   </td>
                 </motion.tr>
