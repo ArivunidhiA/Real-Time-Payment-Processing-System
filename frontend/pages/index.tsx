@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import Head from 'next/head';
-import { WavyBackground } from '@/components/ui/wavy-background';
+import { EtherealShadow } from '@/components/ui/ethereal-shadow';
 import { Button } from '@/components/ui/neon-button';
 import StatsCards from '../components/StatsCards';
 import VolumeChart from '../components/VolumeChart';
@@ -224,11 +224,11 @@ export default function Dashboard() {
         <link rel="icon" href="/favicon.ico" />
       </Head>
 
-      <WavyBackground 
-        backgroundFill="rgba(0, 0, 0, 0.9)"
-        waveOpacity={0.9}
-        blur={10}
-        speed="fast"
+      <EtherealShadow
+        color="rgba(128, 128, 128, 1)"
+        animation={{ scale: 100, speed: 90 }}
+        noise={{ opacity: 1, scale: 1.2 }}
+        sizing="fill"
       />
       <div className="relative z-10 min-h-screen overflow-y-auto">
           {/* Header */}
