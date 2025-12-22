@@ -7,7 +7,8 @@ import * as THREE from 'three';
 type DottedSurfaceProps = Omit<React.ComponentProps<'div'>, 'ref'>;
 
 export function DottedSurface({ className, ...props }: DottedSurfaceProps) {
-	const { theme } = useTheme();
+	const { theme, resolvedTheme } = useTheme();
+	const currentTheme = resolvedTheme || theme || 'dark';
 
 	const containerRef = useRef<HTMLDivElement>(null);
 	const sceneRef = useRef<{
@@ -63,7 +64,7 @@ export function DottedSurface({ className, ...props }: DottedSurfaceProps) {
 				const z = iy * SEPARATION - (AMOUNTY * SEPARATION) / 2;
 
 				positions.push(x, y, z);
-				if (theme === 'dark') {
+				if (currentTheme === 'dark') {
 					colors.push(200, 200, 200);
 				} else {
 					colors.push(0, 0, 0);
@@ -179,7 +180,7 @@ export function DottedSurface({ className, ...props }: DottedSurfaceProps) {
 				}
 			}
 		};
-	}, [theme]);
+	}, [currentTheme]);
 
 	return (
 		<div
