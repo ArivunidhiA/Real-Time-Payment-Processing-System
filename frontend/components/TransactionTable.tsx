@@ -68,9 +68,9 @@ const TransactionTable: React.FC<TransactionTableProps> = ({ transactions, isLoa
       <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
-        className="bg-white/10 backdrop-blur-lg rounded-xl border border-white/20 p-6 shadow-xl"
+        className="bg-white/5 backdrop-blur-lg rounded-xl border border-white/20 p-6 shadow-xl"
       >
-        <h3 className="text-lg font-semibold text-white mb-4">Recent Transactions</h3>
+        <h3 className="text-lg font-bold text-white mb-4">Recent Transactions</h3>
         <div className="overflow-x-auto">
           <table className="min-w-full">
             <thead>
