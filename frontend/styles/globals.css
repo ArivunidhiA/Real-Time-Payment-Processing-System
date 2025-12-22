@@ -61,7 +61,24 @@
   [class*="bg-green-500/20"] span:not(.icon-glow),
   [class*="bg-red-500/20"] span:not(.icon-glow),
   [class*="bg-yellow-500/20"] span:not(.icon-glow),
-  [class*="bg-gray-500/20"] span:not(.icon-glow) {
+  [class*="bg-gray-500/20"] span:not(.icon-glow),
+  [class*="rounded-full"][class*="text-black"] span,
+  [class*="rounded-full"][class*="text-black"] {
+    color: #000000 !important;
+  }
+  
+  /* Override any white text on status badges */
+  [class*="bg-green-500/20"][class*="text-black"],
+  [class*="bg-red-500/20"][class*="text-black"],
+  [class*="bg-yellow-500/20"][class*="text-black"],
+  [class*="bg-gray-500/20"][class*="text-black"] {
+    color: #000000 !important;
+  }
+  
+  [class*="bg-green-500/20"][class*="text-black"] span:not(.icon-glow),
+  [class*="bg-red-500/20"][class*="text-black"] span:not(.icon-glow),
+  [class*="bg-yellow-500/20"][class*="text-black"] span:not(.icon-glow),
+  [class*="bg-gray-500/20"][class*="text-black"] span:not(.icon-glow) {
     color: #000000 !important;
   }
   
