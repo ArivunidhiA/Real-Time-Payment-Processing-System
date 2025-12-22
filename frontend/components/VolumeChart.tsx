@@ -17,7 +17,7 @@ const VolumeChart: React.FC<VolumeChartProps> = ({ data }) => {
       <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
-        className="bg-white/10 backdrop-blur-lg rounded-xl border border-white/20 p-6 shadow-xl card-glow"
+        className="bg-white/10 backdrop-blur-lg rounded-xl border border-white/20 p-6 card-glow"
       >
         <div className="flex items-center gap-3 mb-4">
           <BarChart3 className="w-6 h-6 icon-glow" style={{ color: '#ffffff' }} />
@@ -64,7 +64,7 @@ const VolumeChart: React.FC<VolumeChartProps> = ({ data }) => {
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5 }}
-      className="bg-white/10 backdrop-blur-lg rounded-xl border border-white/20 p-6 shadow-xl card-glow"
+      className="bg-white/10 backdrop-blur-lg rounded-xl border border-white/20 p-6 card-glow"
     >
       <div className="flex items-center gap-3 mb-6">
         <BarChart3 className="w-6 h-6 icon-glow" style={{ color: '#ffffff' }} />

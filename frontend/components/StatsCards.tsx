@@ -74,7 +74,7 @@ const StatsCards: React.FC<StatsCardsProps> = ({ stats }) => {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: index * 0.1 }}
             whileHover={{ scale: 1.05, y: -5 }}
-            className={`bg-white/10 backdrop-blur-lg rounded-xl border ${card.borderColor} p-6 shadow-xl hover:shadow-2xl transition-all duration-300 ${
+            className={`bg-white/10 backdrop-blur-lg rounded-xl border ${card.borderColor} p-6 transition-all duration-300 ${
               card.color.includes('green') ? 'card-glow-green' :
               card.color.includes('blue') ? 'card-glow-blue' :
               card.color.includes('purple') ? 'card-glow-purple' :

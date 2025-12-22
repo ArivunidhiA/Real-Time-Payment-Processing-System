@@ -79,16 +79,26 @@
   [class*="bg-gray-500/20"][class*="text-black"] span:not(.icon-glow),
   td span[class*="rounded-full"] span.text-black,
   td [class*="bg-green-500/20"] span.text-black,
-  td [class*="bg-red-500/20"] span.text-black {
+  td [class*="bg-red-500/20"] span.text-black,
+  td [class*="rounded-full"] span[style*="color: #000000"],
+  td [class*="bg-green-500/20"] span[style*="color: #000000"],
+  td [class*="bg-red-500/20"] span[style*="color: #000000"] {
     color: #000000 !important;
     font-weight: bold !important;
   }
   
-  /* Override any white text on status badges */
+  /* Override any white text on status badges - even more specific */
   [class*="bg-green-500/20"][class*="text-black"],
   [class*="bg-red-500/20"][class*="text-black"],
   [class*="bg-yellow-500/20"][class*="text-black"],
-  [class*="bg-gray-500/20"][class*="text-black"] {
+  [class*="bg-gray-500/20"][class*="text-black"],
+  [class*="bg-green-500/20"][style*="color: #000000"],
+  [class*="bg-red-500/20"][style*="color: #000000"] {
+    color: #000000 !important;
+  }
+  
+  /* Force black text on status badge spans with inline styles */
+  span[style*="color: #000000"] {
     color: #000000 !important;
   }
   
@@ -209,35 +219,40 @@
   }
   
   /* Glow effects for cards/boxes - more visible */
-  .card-glow {
+  .card-glow,
+  [class*="card-glow"] {
     box-shadow: 0 0 30px rgba(255, 255, 255, 0.2),
                 0 0 60px rgba(255, 255, 255, 0.1),
                 0 0 90px rgba(255, 255, 255, 0.05),
                 inset 0 0 30px rgba(255, 255, 255, 0.1) !important;
   }
   
-  .card-glow-green {
+  .card-glow-green,
+  [class*="card-glow-green"] {
     box-shadow: 0 0 30px rgba(74, 222, 128, 0.4),
                 0 0 60px rgba(74, 222, 128, 0.3),
                 0 0 90px rgba(74, 222, 128, 0.2),
                 inset 0 0 30px rgba(74, 222, 128, 0.15) !important;
   }
   
-  .card-glow-blue {
+  .card-glow-blue,
+  [class*="card-glow-blue"] {
     box-shadow: 0 0 30px rgba(96, 165, 250, 0.4),
                 0 0 60px rgba(96, 165, 250, 0.3),
                 0 0 90px rgba(96, 165, 250, 0.2),
                 inset 0 0 30px rgba(96, 165, 250, 0.15) !important;
   }
   
-  .card-glow-purple {
+  .card-glow-purple,
+  [class*="card-glow-purple"] {
     box-shadow: 0 0 30px rgba(168, 85, 247, 0.4),
                 0 0 60px rgba(168, 85, 247, 0.3),
                 0 0 90px rgba(168, 85, 247, 0.2),
                 inset 0 0 30px rgba(168, 85, 247, 0.15) !important;
   }
   
-  .card-glow-emerald {
+  .card-glow-emerald,
+  [class*="card-glow-emerald"] {
     box-shadow: 0 0 30px rgba(52, 211, 153, 0.4),
                 0 0 60px rgba(52, 211, 153, 0.3),
                 0 0 90px rgba(52, 211, 153, 0.2),
