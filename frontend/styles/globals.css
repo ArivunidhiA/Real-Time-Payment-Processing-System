@@ -47,6 +47,14 @@
     color: #ffffff !important;
   }
   
+  /* Exception: status badge cells should not force white text */
+  td:has(span[class*="rounded-full"][class*="text-black"]),
+  td:has([class*="bg-green-500/20"]),
+  td:has([class*="bg-red-500/20"]),
+  td:has([class*="bg-yellow-500/20"]) {
+    color: #ffffff !important;
+  }
+  
   /* Force all text in dashboard to be white (except status badges) */
   .card p,
   .card h3,
@@ -55,16 +63,25 @@
     color: #ffffff !important;
   }
   
-  /* Ensure status badge text is black - highest priority */
+  /* Ensure status badge text is black - highest priority - multiple selectors for maximum specificity */
   .text-black,
   span.text-black,
-  [class*="bg-green-500/20"] span:not(.icon-glow),
-  [class*="bg-red-500/20"] span:not(.icon-glow),
-  [class*="bg-yellow-500/20"] span:not(.icon-glow),
-  [class*="bg-gray-500/20"] span:not(.icon-glow),
-  [class*="rounded-full"][class*="text-black"] span,
-  [class*="rounded-full"][class*="text-black"] {
+  [class*="rounded-full"] span.text-black,
+  [class*="bg-green-500/20"] span.text-black,
+  [class*="bg-red-500/20"] span.text-black,
+  [class*="bg-yellow-500/20"] span.text-black,
+  [class*="bg-gray-500/20"] span.text-black,
+  [class*="rounded-full"][class*="text-black"] span.text-black,
+  [class*="rounded-full"][class*="text-black"] span:not(.icon-glow),
+  [class*="bg-green-500/20"][class*="text-black"] span:not(.icon-glow),
+  [class*="bg-red-500/20"][class*="text-black"] span:not(.icon-glow),
+  [class*="bg-yellow-500/20"][class*="text-black"] span:not(.icon-glow),
+  [class*="bg-gray-500/20"][class*="text-black"] span:not(.icon-glow),
+  td span[class*="rounded-full"] span.text-black,
+  td [class*="bg-green-500/20"] span.text-black,
+  td [class*="bg-red-500/20"] span.text-black {
     color: #000000 !important;
+    font-weight: bold !important;
   }
   
   /* Override any white text on status badges */
@@ -72,13 +89,6 @@
   [class*="bg-red-500/20"][class*="text-black"],
   [class*="bg-yellow-500/20"][class*="text-black"],
   [class*="bg-gray-500/20"][class*="text-black"] {
-    color: #000000 !important;
-  }
-  
-  [class*="bg-green-500/20"][class*="text-black"] span:not(.icon-glow),
-  [class*="bg-red-500/20"][class*="text-black"] span:not(.icon-glow),
-  [class*="bg-yellow-500/20"][class*="text-black"] span:not(.icon-glow),
-  [class*="bg-gray-500/20"][class*="text-black"] span:not(.icon-glow) {
     color: #000000 !important;
   }
   
@@ -198,39 +208,39 @@
             drop-shadow(0 0 24px rgba(248, 113, 113, 0.4));
   }
   
-  /* Glow effects for cards/boxes */
+  /* Glow effects for cards/boxes - more visible */
   .card-glow {
-    box-shadow: 0 0 20px rgba(255, 255, 255, 0.1),
-                0 0 40px rgba(255, 255, 255, 0.05),
-                0 0 60px rgba(255, 255, 255, 0.03),
-                inset 0 0 20px rgba(255, 255, 255, 0.05);
+    box-shadow: 0 0 30px rgba(255, 255, 255, 0.2),
+                0 0 60px rgba(255, 255, 255, 0.1),
+                0 0 90px rgba(255, 255, 255, 0.05),
+                inset 0 0 30px rgba(255, 255, 255, 0.1) !important;
   }
   
   .card-glow-green {
-    box-shadow: 0 0 20px rgba(74, 222, 128, 0.3),
-                0 0 40px rgba(74, 222, 128, 0.2),
-                0 0 60px rgba(74, 222, 128, 0.1),
-                inset 0 0 20px rgba(74, 222, 128, 0.1);
+    box-shadow: 0 0 30px rgba(74, 222, 128, 0.4),
+                0 0 60px rgba(74, 222, 128, 0.3),
+                0 0 90px rgba(74, 222, 128, 0.2),
+                inset 0 0 30px rgba(74, 222, 128, 0.15) !important;
   }
   
   .card-glow-blue {
-    box-shadow: 0 0 20px rgba(96, 165, 250, 0.3),
-                0 0 40px rgba(96, 165, 250, 0.2),
-                0 0 60px rgba(96, 165, 250, 0.1),
-                inset 0 0 20px rgba(96, 165, 250, 0.1);
+    box-shadow: 0 0 30px rgba(96, 165, 250, 0.4),
+                0 0 60px rgba(96, 165, 250, 0.3),
+                0 0 90px rgba(96, 165, 250, 0.2),
+                inset 0 0 30px rgba(96, 165, 250, 0.15) !important;
   }
   
   .card-glow-purple {
-    box-shadow: 0 0 20px rgba(168, 85, 247, 0.3),
-                0 0 40px rgba(168, 85, 247, 0.2),
-                0 0 60px rgba(168, 85, 247, 0.1),
-                inset 0 0 20px rgba(168, 85, 247, 0.1);
+    box-shadow: 0 0 30px rgba(168, 85, 247, 0.4),
+                0 0 60px rgba(168, 85, 247, 0.3),
+                0 0 90px rgba(168, 85, 247, 0.2),
+                inset 0 0 30px rgba(168, 85, 247, 0.15) !important;
   }
   
   .card-glow-emerald {
-    box-shadow: 0 0 20px rgba(52, 211, 153, 0.3),
-                0 0 40px rgba(52, 211, 153, 0.2),
-                0 0 60px rgba(52, 211, 153, 0.1),
-                inset 0 0 20px rgba(52, 211, 153, 0.1);
+    box-shadow: 0 0 30px rgba(52, 211, 153, 0.4),
+                0 0 60px rgba(52, 211, 153, 0.3),
+                0 0 90px rgba(52, 211, 153, 0.2),
+                inset 0 0 30px rgba(52, 211, 153, 0.15) !important;
   }
 }

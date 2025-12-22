@@ -118,7 +118,7 @@ const TransactionTable: React.FC<TransactionTableProps> = ({ transactions, isLoa
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5 }}
-      className="bg-white/5 backdrop-blur-lg rounded-xl border border-white/20 p-6 shadow-xl"
+      className="bg-white/5 backdrop-blur-lg rounded-xl border border-white/20 p-6 shadow-xl card-glow"
     >
       <h3 className="text-lg font-bold mb-6" style={{ color: '#ffffff' }}>Recent Transactions</h3>
       <div className="overflow-x-auto">
@@ -156,9 +156,9 @@ const TransactionTable: React.FC<TransactionTableProps> = ({ transactions, isLoa
                     {transaction.merchant}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
-                    <span className={getStatusBadge(transaction.status)}>
+                    <span className={getStatusBadge(transaction.status)} style={{ color: '#000000' }}>
                       <span className="icon-glow">{getStatusIcon(transaction.status)}</span>
-                      <span className="text-black">{transaction.status}</span>
+                      <span className="text-black" style={{ color: '#000000', fontWeight: 'bold' }}>{transaction.status}</span>
                     </span>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm font-medium" style={{ color: '#ffffff' }}>
