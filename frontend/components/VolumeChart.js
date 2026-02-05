@@ -29,19 +29,19 @@ const VolumeChart = ({ data }) => {
       <div className="h-64">
         <ResponsiveContainer width="100%" height="100%">
           <LineChart data={chartData}>
-            <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
+            <CartesianGrid strokeDasharray="3 3" stroke="rgba(26, 26, 26, 0.25)" strokeWidth={1.5} />
             <XAxis 
               dataKey="time" 
-              stroke="#666"
+              stroke="rgba(26, 26, 26, 0.25)"
               fontSize={12}
-              tickLine={false}
-              axisLine={false}
+              tickLine={{ stroke: 'rgba(26, 26, 26, 0.25)', strokeWidth: 1 }}
+              axisLine={{ stroke: 'rgba(26, 26, 26, 0.25)', strokeWidth: 1 }}
             />
             <YAxis 
-              stroke="#666"
+              stroke="rgba(26, 26, 26, 0.25)"
               fontSize={12}
-              tickLine={false}
-              axisLine={false}
+              tickLine={{ stroke: 'rgba(26, 26, 26, 0.25)', strokeWidth: 1 }}
+              axisLine={{ stroke: 'rgba(26, 26, 26, 0.25)', strokeWidth: 1 }}
               tickFormatter={(value) => `$${value}`}
             />
             <Tooltip 

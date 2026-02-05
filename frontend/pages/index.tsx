@@ -1,6 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
 import Head from 'next/head';
-import { Component as EtherealShadow } from '@/components/ui/ethereal-shadow';
 import StatsCards from '../components/StatsCards';
 import VolumeChart from '../components/VolumeChart';
 import TransactionTable from '../components/TransactionTable';
@@ -38,17 +37,30 @@ interface Stats {
   };
 }
 
-// Fallback when backend/DB is unavailable (e.g. Render DB expired)
-const MOCK_TRANSACTIONS: Transaction[] = [
-  { id: 1, transaction_id: 'txn_mock_001', user_id: 1, amount: 49.99, merchant: 'Amazon', status: 'APPROVED', timestamp: new Date(Date.now() - 120000).toISOString() },
-  { id: 2, transaction_id: 'txn_mock_002', user_id: 2, amount: 12.50, merchant: 'Starbucks', status: 'APPROVED', timestamp: new Date(Date.now() - 240000).toISOString() },
-  { id: 3, transaction_id: 'txn_mock_003', user_id: 3, amount: 199.00, merchant: 'Netflix', status: 'DECLINED', timestamp: new Date(Date.now() - 360000).toISOString() },
-  { id: 4, transaction_id: 'txn_mock_004', user_id: 1, amount: 34.20, merchant: 'Uber', status: 'APPROVED', timestamp: new Date(Date.now() - 480000).toISOString() },
-  { id: 5, transaction_id: 'txn_mock_005', user_id: 4, amount: 89.99, merchant: 'Apple Store', status: 'APPROVED', timestamp: new Date(Date.now() - 600000).toISOString() },
-  { id: 6, transaction_id: 'txn_mock_006', user_id: 2, amount: 5.99, merchant: 'Spotify', status: 'APPROVED', timestamp: new Date(Date.now() - 720000).toISOString() },
-  { id: 7, transaction_id: 'txn_mock_007', user_id: 5, amount: 156.00, merchant: 'Target', status: 'APPROVED', timestamp: new Date(Date.now() - 840000).toISOString() },
-  { id: 8, transaction_id: 'txn_mock_008', user_id: 3, amount: 22.40, merchant: 'McDonald\'s', status: 'DECLINED', timestamp: new Date(Date.now() - 960000).toISOString() },
-];
+// Fallback when backend/DB is unavailable — rich, live-looking mock data
+const MOCK_MERCHANTS = ['Amazon', 'Starbucks', 'Netflix', 'Uber', 'Apple Store', 'Spotify', 'Target', 'Walmart', 'Costco', 'Best Buy', 'Home Depot', 'McDonald\'s', 'Chipotle', 'DoorDash', 'Lyft', 'Shell', 'Exxon', 'Whole Foods', 'Trader Joe\'s', 'Adobe', 'Microsoft', 'Google Cloud', 'AWS', 'Zoom', 'Slack'];
+const MOCK_STATUSES = ['APPROVED', 'APPROVED', 'APPROVED', 'APPROVED', 'DECLINED', 'PENDING'] as const;
+
+function generateMockTransactions(): Transaction[] {
+  const list: Transaction[] = [];
+  const now = Date.now();
+  for (let i = 0; i < 45; i++) {
+    const secAgo = 2 + Math.floor(Math.random() * 178);
+    const amount = Math.round((5 + Math.random() * 495) * 100) / 100;
+    list.push({
+      id: i + 1,
+      transaction_id: `txn_mock_${String(i + 1).padStart(4, '0')}`,
+      user_id: 1 + (i % 12),
+      amount,
+      merchant: MOCK_MERCHANTS[i % MOCK_MERCHANTS.length],
+      status: MOCK_STATUSES[Math.floor(Math.random() * MOCK_STATUSES.length)],
+      timestamp: new Date(now - secAgo * 1000).toISOString(),
+    });
+  }
+  return list.sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
+}
+
+const MOCK_TRANSACTIONS = generateMockTransactions();
 
 function getMockVolumePerMinute(): Array<{ minute: string; count: number; volume: number }> {
   const out = [];
@@ -57,27 +69,69 @@ function getMockVolumePerMinute(): Array<{ minute: string; count: number; volume
     const t = new Date(now - (11 - i) * 5 * 60 * 1000);
     out.push({
       minute: t.toISOString(),
-      count: 3 + Math.floor(Math.random() * 8),
-      volume: 80 + Math.floor(Math.random() * 400),
+      count: 12 + Math.floor(Math.random() * 28),
+      volume: 420 + Math.floor(Math.random() * 1800),
     });
   }
   return out;
 }
 
+function createOneMockTransaction(mockId: number): Transaction {
+  const amount = Math.round((5 + Math.random() * 495) * 100) / 100;
+  const status = MOCK_STATUSES[Math.floor(Math.random() * MOCK_STATUSES.length)];
+  return {
+    id: mockId,
+    transaction_id: `txn_mock_${String(mockId).padStart(6, '0')}`,
+    user_id: 1 + Math.floor(Math.random() * 12),
+    amount,
+    merchant: MOCK_MERCHANTS[Math.floor(Math.random() * MOCK_MERCHANTS.length)],
+    status,
+    timestamp: new Date().toISOString(),
+  };
+}
+
+function addTransactionToVolumePerMinute(
+  volumePerMinute: Array<{ minute: string; count: number; volume: number }>,
+  amount: number
+): Array<{ minute: string; count: number; volume: number }> {
+  const now = new Date();
+  const bucketStart = new Date(now);
+  bucketStart.setMinutes(Math.floor(now.getMinutes() / 5) * 5, 0, 0);
+  const bucketIso = bucketStart.toISOString();
+  const out = volumePerMinute.map((row) => {
+    const rowStart = new Date(row.minute);
+    rowStart.setMinutes(Math.floor(rowStart.getMinutes() / 5) * 5, 0, 0);
+    if (rowStart.getTime() === bucketStart.getTime()) {
+      return { ...row, count: row.count + 1, volume: row.volume + amount };
+    }
+    return row;
+  });
+  const hasBucket = out.some((row) => {
+    const rowStart = new Date(row.minute);
+    rowStart.setMinutes(Math.floor(rowStart.getMinutes() / 5) * 5, 0, 0);
+    return rowStart.getTime() === bucketStart.getTime();
+  });
+  if (!hasBucket) {
+    out.push({ minute: bucketIso, count: 1, volume: amount });
+    out.sort((a, b) => new Date(a.minute).getTime() - new Date(b.minute).getTime());
+  }
+  return out;
+}
+
 const MOCK_STATS: Stats = {
-  approvalRate: 87.5,
-  totalTransactions: 1247,
-  approvedTransactions: 1091,
-  declinedTransactions: 156,
-  averageApprovedAmount: 67.42,
-  totalVolume: 73582.18,
-  transactionsLastMinute: 12,
+  approvalRate: 88.2,
+  totalTransactions: 2847,
+  approvedTransactions: 2511,
+  declinedTransactions: 289,
+  averageApprovedAmount: 72.18,
+  totalVolume: 181246.52,
+  transactionsLastMinute: 23,
   volumePerMinute: getMockVolumePerMinute(),
   systemMetrics: {
-    averageLatency: 142,
+    averageLatency: 138,
     uptime: 99.99,
-    processedTransactions: 1247,
-    transactionsPerSecond: '0.35',
+    processedTransactions: 2847,
+    transactionsPerSecond: '1.2',
   },
 };
 
@@ -85,10 +139,11 @@ export default function Dashboard() {
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [stats, setStats] = useState<Stats | null>(null);
   const [isLoading, setIsLoading] = useState(true);
-  const [loadError, setLoadError] = useState<string | null>(null);
   const [connectionStatus, setConnectionStatus] = useState<'connected' | 'disconnected' | 'error'>('disconnected');
+  const [isMockMode, setIsMockMode] = useState(false);
   const wsRef = useRef<WebSocket | null>(null);
   const reconnectTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const mockIdRef = useRef(10000);
 
   const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:3001';
   const apiBaseUrl = `${backendUrl}/api`;
@@ -157,33 +212,32 @@ export default function Dashboard() {
   const fetchData = async () => {
     try {
       setIsLoading(true);
-      setLoadError(null);
-
       const [transactionsRes, statsRes] = await Promise.all([
         fetch(`${apiBaseUrl}/transactions`),
         fetch(`${apiBaseUrl}/stats`)
       ]);
 
-      if (transactionsRes.ok) {
+      const transactionsOk = transactionsRes.ok;
+      const statsOk = statsRes.ok;
+
+      if (transactionsOk) {
         const transactionsData = await transactionsRes.json();
         setTransactions(transactionsData.data || []);
       } else {
         setTransactions(MOCK_TRANSACTIONS);
       }
-      if (statsRes.ok) {
+      if (statsOk) {
         const statsData = await statsRes.json();
         setStats(statsData.data || null);
       } else {
         setStats({ ...MOCK_STATS, volumePerMinute: getMockVolumePerMinute() });
       }
-      if (!transactionsRes.ok || !statsRes.ok) {
-        setLoadError('Showing sample data. Backend or database unavailable (e.g. Render DB expired).');
-      }
+      setIsMockMode(!transactionsOk || !statsOk);
     } catch (error) {
       console.error('Error fetching data:', error);
       setTransactions(MOCK_TRANSACTIONS);
       setStats({ ...MOCK_STATS, volumePerMinute: getMockVolumePerMinute() });
-      setLoadError('Showing sample data. Cannot reach backend.');
+      setIsMockMode(true);
     } finally {
       setIsLoading(false);
     }
@@ -192,38 +246,51 @@ export default function Dashboard() {
   useEffect(() => {
     fetchData();
     connectWebSocket();
+  }, []);
 
-    // Refresh stats every 10 seconds
+  // When API is available: refresh stats every 10s. When mock: don't poll API.
+  useEffect(() => {
+    if (isMockMode) return;
     const statsInterval = setInterval(() => {
       fetch(`${apiBaseUrl}/stats`)
         .then(res => res.json())
-        .then(data => setStats(data.data))
+        .then(data => data.success && data.data && setStats(data.data))
         .catch(console.error);
     }, 10000);
+    return () => clearInterval(statsInterval);
+  }, [isMockMode]);
 
-    return () => {
-      if (wsRef.current) {
-        wsRef.current.close();
-      }
-      if (reconnectTimeoutRef.current) {
-        clearTimeout(reconnectTimeoutRef.current);
-      }
-      clearInterval(statsInterval);
-    };
-  }, []);
-
-  const getConnectionStatusColor = () => {
-    switch (connectionStatus) {
-      case 'connected':
-        return 'bg-green-500/20 text-green-400 border-green-500/30';
-      case 'disconnected':
-        return 'bg-yellow-500/20 text-yellow-400 border-yellow-500/30';
-      case 'error':
-        return 'bg-red-500/20 text-red-400 border-red-500/30';
-      default:
-        return 'bg-gray-500/20 text-gray-400 border-gray-500/30';
-    }
-  };
+  // Mock live mode: add a new transaction and update stats/chart periodically (same UX as production)
+  useEffect(() => {
+    if (!isMockMode) return;
+    const MOCK_LIVE_INTERVAL_MS = 4000;
+    const interval = setInterval(() => {
+      mockIdRef.current += 1;
+      const newTx = createOneMockTransaction(mockIdRef.current);
+      setTransactions((prev) => [newTx, ...prev.slice(0, 49)]);
+      setStats((prev) => {
+        if (!prev) return prev;
+        const approved = newTx.status === 'APPROVED' ? prev.approvedTransactions + 1 : prev.approvedTransactions;
+        const declined = newTx.status === 'DECLINED' ? prev.declinedTransactions + 1 : prev.declinedTransactions;
+        const newVolumePerMinute = addTransactionToVolumePerMinute(prev.volumePerMinute || [], newTx.amount);
+        return {
+          ...prev,
+          totalTransactions: prev.totalTransactions + 1,
+          approvedTransactions: approved,
+          declinedTransactions: declined,
+          totalVolume: prev.totalVolume + newTx.amount,
+          transactionsLastMinute: (prev.transactionsLastMinute || 0) + 1,
+          volumePerMinute: newVolumePerMinute,
+          approvalRate: prev.totalTransactions + 1 > 0 ? (approved / (prev.totalTransactions + 1)) * 100 : prev.approvalRate,
+          systemMetrics: {
+            ...prev.systemMetrics,
+            processedTransactions: prev.totalTransactions + 1,
+          },
+        };
+      });
+    }, MOCK_LIVE_INTERVAL_MS);
+    return () => clearInterval(interval);
+  }, [isMockMode]);
 
   return (
     <>
@@ -234,88 +301,111 @@ export default function Dashboard() {
         <link rel="icon" href="/favicon.ico" />
       </Head>
 
-      <div className="fixed inset-0 -z-10">
-        <EtherealShadow
-          color="rgba(99, 102, 241, 0.8)"
-          animation={{ scale: 60, speed: 25 }}
-          noise={{ opacity: 0.5, scale: 1.2 }}
-          sizing="fill"
-        />
-        <div className="absolute inset-0 bg-black/70 pointer-events-none z-[1]" aria-hidden />
-      </div>
+      <div className="noise-overlay" aria-hidden />
       <div className="relative z-10 min-h-screen overflow-y-auto">
-          {/* Header */}
+          {/* Navbar: fixed, pill with blur */}
           <motion.header
-            initial={{ opacity: 0, y: -20 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="bg-white/5 backdrop-blur-xl border-b border-white/10 sticky top-0 z-50"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
+            className="fixed top-0 left-0 right-0 z-50 w-full px-4 sm:px-6 py-4 sm:py-6"
           >
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-              <div className="flex justify-between items-center py-4">
-                <div>
-                  <h1 className="text-3xl font-bold bg-gradient-to-r from-white to-white/70 bg-clip-text text-transparent">
-                    Real-Time Payment Dashboard
-                  </h1>
-                  <p className="text-sm text-white/90 mt-1 font-medium">Live transaction monitoring and analytics</p>
-                </div>
-                <div className="flex items-center gap-4">
-                  <motion.div
-                    whileHover={{ scale: 1.05 }}
-                    className={`px-4 py-2 rounded-lg border backdrop-blur-sm flex items-center gap-2 ${getConnectionStatusColor()}`}
-                  >
-                    {connectionStatus === 'connected' ? (
-                      <Wifi className="w-4 h-4 icon-glow" />
-                    ) : (
-                      <WifiOff className="w-4 h-4 icon-glow" />
-                    )}
-                    <span className="text-xs font-medium">
-                      {connectionStatus === 'connected' ? 'Live' : 'Offline'}
-                    </span>
-                  </motion.div>
-                </div>
+            <div className="max-w-7xl mx-auto flex justify-between items-center gap-3">
+              <div className="rounded-full bg-white/10 backdrop-blur-[20px] px-4 sm:px-6 py-2 sm:py-2.5 flex items-center shrink-0 min-w-0">
+                <span className="label-editorial text-forest text-[11px] truncate">— REAL-TIME PAYMENT</span>
+              </div>
+              <nav className="rounded-full bg-white/10 backdrop-blur-[20px] px-4 sm:px-6 py-2 sm:py-2.5 flex items-center shrink-0">
+                <span className="label-editorial text-forest text-[10px]">DASHBOARD</span>
+              </nav>
+              <div
+                className={`rounded-full px-3 sm:px-4 py-2 flex items-center gap-2 shrink-0 min-h-[44px] min-w-[44px] justify-center transition-shadow duration-300 ${
+                  connectionStatus === 'connected' ? 'bg-forest text-cream' : 'bg-white text-forest'
+                }`}
+                style={{
+                  boxShadow:
+                    connectionStatus === 'connected'
+                      ? '0 0 48px rgba(1, 71, 46, 0.55), 0 0 24px rgba(1, 71, 46, 0.4), 0 25px 50px -12px rgba(1, 71, 46, 0.25)'
+                      : '0 25px 50px -12px rgba(1, 71, 46, 0.2)',
+                }}
+              >
+                {connectionStatus === 'connected' ? <Wifi className="w-4 h-4 text-cream" aria-hidden /> : <WifiOff className="w-4 h-4 text-forest" aria-hidden />}
+                <span className={`label-editorial text-[10px] ${connectionStatus === 'connected' ? 'text-cream' : 'text-forest'}`}>{connectionStatus === 'connected' ? 'LIVE' : 'OFFLINE'}</span>
               </div>
             </div>
           </motion.header>
 
-          {/* Main Content */}
-          <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-            {loadError && (
-              <div className="mb-6 p-4 rounded-lg bg-amber-500/20 border border-amber-500/40 text-amber-200 text-sm">
-                {loadError}
+          {/* Hero: compact Sage block — no horizontal scroll, content brought up */}
+          <section className="bg-sage flex flex-col justify-center items-center text-center px-4 sm:px-6 pt-24 sm:pt-28 pb-8 sm:pb-10 rounded-b-[3rem] sm:rounded-b-[5rem] overflow-hidden">
+            <motion.h1
+              initial={{ opacity: 0, y: 60 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 1.2, ease: [0.16, 1, 0.3, 1] }}
+              className="font-display-editorial text-forest"
+            >
+              PAYMENT DASHBOARD
+            </motion.h1>
+            <motion.p
+              initial={{ opacity: 0, y: 40 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 1.2, delay: 0.2, ease: [0.16, 1, 0.3, 1] }}
+              className="mt-3 sm:mt-4 font-inter text-forest/80 text-base sm:text-lg max-w-2xl font-normal"
+            >
+              Live transaction monitoring and analytics
+            </motion.p>
+          </section>
+
+          {/* Main: Olive, 5rem rounded top — tighter top padding to bring table up */}
+          <main className="bg-olive rounded-t-[3rem] sm:rounded-t-[5rem] pt-8 sm:pt-10 pb-16 sm:pb-24 -mt-2 relative z-10">
+            <div className="max-w-7xl mx-auto px-4 sm:px-6">
+              <StatsCards stats={stats} />
+
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 sm:gap-10 mt-10 sm:mt-14 mb-12 sm:mb-20">
+                <VolumeChart data={stats?.volumePerMinute || null} />
+                <motion.div
+                  initial={{ opacity: 0, y: 100 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 1.2, delay: 0.15, ease: [0.16, 1, 0.3, 1] }}
+                  className="card-editorial bg-cream p-6 sm:p-10 text-center flex flex-col justify-start items-center min-h-[280px] sm:min-h-[320px]"
+                >
+                  <h3 className="label-editorial summary-heading text-forest font-bold mb-4 mt-0 w-full">SUMMARY</h3>
+                  <div className="font-inter text-forest space-y-2 text-lg flex-1 flex flex-col justify-center">
+                    <p><span className="text-moss">Total Transactions:</span> <span className="font-bold">{stats?.totalTransactions ?? 0}</span></p>
+                    <p><span className="text-moss">Approved:</span> <span className="font-bold">{stats?.approvedTransactions ?? 0}</span></p>
+                    <p><span className="text-moss">Declined:</span> <span className="font-bold">{stats?.declinedTransactions ?? 0}</span></p>
+                    <p><span className="text-moss">Total Volume:</span> <span className="font-bold">${(stats?.totalVolume ?? 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span></p>
+                  </div>
+                </motion.div>
               </div>
-            )}
-            {/* Stats Cards */}
-            <StatsCards stats={stats} />
 
-            {/* Charts and Tables */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
-              <VolumeChart data={stats?.volumePerMinute || null} />
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.5, delay: 0.2 }}
-                className="bg-white/10 backdrop-blur-lg rounded-xl border border-white/20 p-6 card-glow"
-              >
-                <h3 className="text-lg font-semibold text-white mb-4">Summary</h3>
-                <div className="text-sm text-white space-y-2">
-                  <p><strong className="text-white font-bold">Total Transactions:</strong> <span className="font-semibold">{stats?.totalTransactions ?? 0}</span></p>
-                  <p><strong className="text-white font-bold">Approved:</strong> <span className="font-semibold text-green-400">{stats?.approvedTransactions ?? 0}</span></p>
-                  <p><strong className="text-white font-bold">Declined:</strong> <span className="font-semibold text-red-400">{stats?.declinedTransactions ?? 0}</span></p>
-                  <p><strong className="text-white font-bold">Total Volume:</strong> <span className="font-semibold text-blue-400">${(stats?.totalVolume ?? 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span></p>
-                </div>
-              </motion.div>
+              <div className="mt-4 sm:mt-6">
+                <TransactionTable transactions={transactions} isLoading={isLoading} />
+              </div>
             </div>
-
-            {/* Transaction Table */}
-            <TransactionTable transactions={transactions} isLoading={isLoading} />
           </main>
 
-          {/* Footer */}
-          <footer className="bg-white/5 backdrop-blur-xl border-t border-white/10 mt-12">
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-              <div className="text-center text-sm text-white/90 font-medium">
-                <p>Real-Time Payment Processing System - Built with Next.js, Node.js, and PostgreSQL</p>
+          {/* Footer: Forest, Sage text */}
+          <footer className="bg-forest text-sage py-12 sm:py-20 px-4 sm:px-6">
+            <div className="max-w-7xl mx-auto flex flex-wrap items-baseline gap-x-12 sm:gap-x-16 gap-y-2">
+              <div className="flex items-baseline gap-2 flex-wrap">
+                <span className="label-editorial text-sage text-[11px]">GITHUB:</span>
+                <a
+                  href="https://github.com/ArivunidhiA/Real-Time-Payment-Processing-System"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="label-editorial text-sage text-[11px] hover:text-sage/80 transition-colors underline underline-offset-2"
+                >
+                  Real-Time-Payment-Processing-System
+                </a>
               </div>
+              <div className="flex items-baseline gap-2 flex-wrap">
+                <span className="label-editorial text-sage text-[11px]">STACK:</span>
+                <span className="label-editorial text-sage text-[11px]">Next.js · Node · PostgreSQL</span>
+              </div>
+            </div>
+            <div className="max-w-7xl mx-auto mt-10 sm:mt-16 pt-6 sm:pt-8 border-t border-sage/30">
+              <p className="text-sage/70 text-xs label-editorial">
+                © Real-Time Payment Processing System
+              </p>
             </div>
           </footer>
         </div>

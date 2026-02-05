@@ -8,7 +8,16 @@ module.exports = {
   darkMode: "class",
   theme: {
     extend: {
+      fontFamily: {
+        anton: ['Anton', 'sans-serif'],
+        inter: ['Inter', 'system-ui', 'sans-serif'],
+      },
       colors: {
+        forest: '#01472e',
+        sage: '#ccd5ae',
+        olive: '#e9edc9',
+        cream: '#fefae0',
+        moss: '#a3b18a',
         primary: {
           50: '#eff6ff',
           100: '#dbeafe',
@@ -46,7 +55,15 @@ module.exports = {
           900: '#7f1d1d',
         },
       },
+      transitionTimingFunction: {
+        editorial: 'cubic-bezier(0.16, 1, 0.3, 1)',
+      },
+      borderRadius: {
+        'section': '5rem',
+        'card': '2.5rem',
+      },
       animation: {
+        float: 'float 6s ease-in-out infinite',
         first: "moveVertical 30s ease infinite",
         second: "moveInCircle 20s reverse infinite",
         third: "moveInCircle 40s linear infinite",
@@ -77,15 +94,13 @@ module.exports = {
           },
         },
         moveVertical: {
-          "0%": {
-            transform: "translateY(-50%)",
-          },
-          "50%": {
-            transform: "translateY(50%)",
-          },
-          "100%": {
-            transform: "translateY(-50%)",
-          },
+          "0%": { transform: "translateY(-50%)" },
+          "50%": { transform: "translateY(50%)" },
+          "100%": { transform: "translateY(-50%)" },
+        },
+        float: {
+          "0%, 100%": { transform: "translateY(0) rotate(0deg)" },
+          "50%": { transform: "translateY(-20px) rotate(5deg)" },
         },
       },
     },

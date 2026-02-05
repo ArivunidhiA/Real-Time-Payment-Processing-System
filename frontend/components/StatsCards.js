@@ -15,49 +15,18 @@ const StatsCards = ({ stats }) => {
   }
 
   const cards = [
-    {
-      title: 'Approval Rate',
-      value: `${stats.approvalRate}%`,
-      icon: '📊',
-      color: 'text-success-600',
-      bgColor: 'bg-success-50'
-    },
-    {
-      title: 'Avg Latency',
-      value: `${stats.systemMetrics?.averageLatency || 0}ms`,
-      icon: '⚡',
-      color: 'text-primary-600',
-      bgColor: 'bg-primary-50'
-    },
-    {
-      title: 'Uptime',
-      value: `${stats.systemMetrics?.uptime || 0}%`,
-      icon: '🟢',
-      color: 'text-success-600',
-      bgColor: 'bg-success-50'
-    },
-    {
-      title: 'Volume (Last Min)',
-      value: `$${stats.transactionsLastMinute || 0}`,
-      icon: '💰',
-      color: 'text-primary-600',
-      bgColor: 'bg-primary-50'
-    }
+    { title: 'Approval Rate', value: `${Number(stats.approvalRate ?? 0).toFixed(3)}%` },
+    { title: 'Avg Latency', value: `${stats.systemMetrics?.averageLatency || 0}ms` },
+    { title: 'Uptime', value: `${stats.systemMetrics?.uptime || 0}%` },
+    { title: 'Total Volume', value: `$${(stats.totalVolume || 0).toLocaleString()}` },
   ];
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
       {cards.map((card, index) => (
-        <div key={index} className="card">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm font-medium text-gray-600 mb-1">{card.title}</p>
-              <p className={`text-2xl font-bold ${card.color}`}>{card.value}</p>
-            </div>
-            <div className={`w-12 h-12 ${card.bgColor} rounded-lg flex items-center justify-center`}>
-              <span className="text-2xl">{card.icon}</span>
-            </div>
-          </div>
+        <div key={index} className="bg-cream rounded-card p-6 shadow-2xl" style={{ boxShadow: '0 25px 50px -12px rgba(1, 71, 46, 0.2)' }}>
+          <p className="label-editorial text-moss mb-2">{card.title}</p>
+          <p className="text-2xl font-bold text-forest tracking-tight font-inter">{card.value}</p>
         </div>
       ))}
     </div>
