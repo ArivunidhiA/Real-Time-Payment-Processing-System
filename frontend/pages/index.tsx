@@ -258,10 +258,11 @@ export default function Dashboard() {
       <div className="fixed inset-0 -z-10">
         <EtherealShadow
           color="rgba(99, 102, 241, 0.8)"
-          animation={{ scale: 100, speed: 90 }}
-          noise={{ opacity: 0.8, scale: 1.2 }}
+          animation={{ scale: 60, speed: 25 }}
+          noise={{ opacity: 0.5, scale: 1.2 }}
           sizing="fill"
         />
+        <div className="absolute inset-0 bg-black/50 pointer-events-none" aria-hidden />
       </div>
       <div className="relative z-10 min-h-screen overflow-y-auto">
           {/* Header */}

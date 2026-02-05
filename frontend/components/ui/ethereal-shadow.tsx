@@ -69,7 +69,7 @@ export function Component({
     const hueRotateAnimation = useRef<AnimationPlaybackControls | null>(null);
 
     const displacementScale = animation ? mapRange(animation.scale, 1, 100, 20, 100) : 0;
-    const animationDuration = animation ? mapRange(animation.speed, 1, 100, 1000, 50) : 1;
+    const animationDuration = animation ? mapRange(animation.speed, 1, 100, 3000, 400) : 1;
 
     useEffect(() => {
         if (feColorMatrixRef.current && animationEnabled) {
@@ -78,7 +78,7 @@ export function Component({
             }
             hueRotateMotionValue.set(0);
             hueRotateAnimation.current = animate(hueRotateMotionValue, 360, {
-                duration: animationDuration / 25,
+                duration: animationDuration / 1000,
                 repeat: Infinity,
                 repeatType: "loop",
                 repeatDelay: 0,
