@@ -173,11 +173,21 @@ Choose ONE of the following:
 ## ⚠️ Security Notes
 
 1. **Never commit `.env` files** to version control
-2. **Use different keys** for development and production
-3. **Rotate secrets** regularly
-4. **Use strong passwords** for all services
-5. **Enable 2FA** on all service accounts
-6. **Review access logs** regularly
+2. **Never share connection strings or API keys** in chat, docs, or screenshots (they contain secrets)
+3. **Use different keys** for development and production
+4. **Rotate secrets** regularly
+5. **Use strong passwords** for all services
+6. **Enable 2FA** on all service accounts
+7. **Review access logs** regularly
+
+### If you exposed your database URL (e.g. Render PostgreSQL)
+
+1. **Render Dashboard** → your **PostgreSQL** service
+2. Open **Info** or **Settings** → find **Reset database password** (or **Credentials**)
+3. Reset the password and copy the **new** connection string
+4. In your **Web Service** (backend) → **Environment** → set `DATABASE_URL` to the new value
+5. **Redeploy** the Web Service so it uses the new URL
+6. Old password is invalid; no code changes needed
 
 ## 📞 Support
 
