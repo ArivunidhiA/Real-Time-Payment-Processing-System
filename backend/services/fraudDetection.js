@@ -124,14 +124,14 @@ class FraudDetectionService {
         }
       }
 
-      // If not in cache, query database
+      // If not in cache, query database (parameterized interval)
       if (transactionCount === 0) {
         const result = await pool.query(
           `SELECT COUNT(*) as count 
            FROM transactions 
            WHERE user_id = $1 
-           AND timestamp > NOW() - INTERVAL '${this.velocityWindow} minutes'`,
-          [transaction.userId]
+           AND timestamp > NOW() - make_interval(mins => $2::int)`,
+          [transaction.userId, this.velocityWindow]
         );
         transactionCount = parseInt(result.rows[0]?.count || 0);
 

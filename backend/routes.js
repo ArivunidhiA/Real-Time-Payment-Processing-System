@@ -1,5 +1,5 @@
 const express = require('express');
-const { db } = require('./db/db');
+const { db, pool } = require('./db/db');
 const TransactionProcessor = require('./services/transactionProcessor');
 const { authenticate, optionalAuthenticate, authorize } = require('./middleware/auth');
 const { validate, schemas, sanitize } = require('./middleware/validation');
@@ -150,11 +150,18 @@ router.post('/transactions/producer/stop',
   })
 );
 
-// GET /health - Simple health check
+// GET /health - Simple health check (liveness)
 router.get('/health', asyncHandler(async (req, res) => {
   const health = await simpleHealthCheck();
   const statusCode = health.status === 'ok' ? 200 : 503;
   res.status(statusCode).json(health);
+}));
+
+// GET /ready - Readiness (DB required; use for Render health check URL)
+router.get('/ready', asyncHandler(async (req, res) => {
+  const health = await simpleHealthCheck();
+  const statusCode = health.status === 'ok' ? 200 : 503;
+  res.status(statusCode).json({ ...health, ready: health.status === 'ok' });
 }));
 
 // GET /health/detailed - Comprehensive health check
@@ -174,7 +181,7 @@ router.get('/users',
   authorize('admin'),
   asyncHandler(async (req, res) => {
     const query = 'SELECT id, email, balance, role, created_at FROM users ORDER BY id';
-    const result = await db.pool.query(query);
+    const result = await pool.query(query);
     
     res.json({
       success: true,

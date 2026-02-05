@@ -44,8 +44,8 @@ function createRateLimiter(options = {}) {
     standardHeaders: true, // Return rate limit info in the `RateLimit-*` headers
     legacyHeaders: false, // Disable the `X-RateLimit-*` headers
     skip: (req) => {
-      // Skip rate limiting for health checks
-      return req.path === '/health' || req.path === '/api/health';
+      // Skip rate limiting for health/readiness checks
+      return req.path === '/health' || req.path === '/ready' || req.path === '/api/health';
     },
     ...options
   };

@@ -1,13 +1,7 @@
 const winston = require('winston');
 const DailyRotateFile = require('winston-daily-rotate-file');
 const path = require('path');
-
-// Create logs directory if it doesn't exist
 const fs = require('fs');
-const logsDir = path.join(__dirname, '../logs');
-if (!fs.existsSync(logsDir)) {
-  fs.mkdirSync(logsDir, { recursive: true });
-}
 
 // Custom format for console output
 const consoleFormat = winston.format.combine(
@@ -30,36 +24,41 @@ const fileFormat = winston.format.combine(
   winston.format.json()
 );
 
-// Create transports
+// File transports only when not production (ephemeral/read-only fs on Render, Vercel, etc.)
+const useFileLogging = process.env.NODE_ENV !== 'production' || process.env.LOG_TO_FILES === 'true';
 const transports = [
-  // Console transport
   new winston.transports.Console({
     level: process.env.LOG_LEVEL || 'info',
     format: consoleFormat,
     handleExceptions: true,
     handleRejections: true
-  }),
-
-  // Daily rotate file for all logs
-  new DailyRotateFile({
-    filename: path.join(logsDir, 'application-%DATE%.log'),
-    datePattern: 'YYYY-MM-DD',
-    maxSize: '20m',
-    maxFiles: '14d',
-    format: fileFormat,
-    level: 'info'
-  }),
-
-  // Daily rotate file for errors
-  new DailyRotateFile({
-    filename: path.join(logsDir, 'error-%DATE%.log'),
-    datePattern: 'YYYY-MM-DD',
-    maxSize: '20m',
-    maxFiles: '30d',
-    format: fileFormat,
-    level: 'error'
   })
 ];
+
+if (useFileLogging) {
+  const logsDir = path.join(__dirname, '../logs');
+  if (!fs.existsSync(logsDir)) {
+    fs.mkdirSync(logsDir, { recursive: true });
+  }
+  transports.push(
+    new DailyRotateFile({
+      filename: path.join(logsDir, 'application-%DATE%.log'),
+      datePattern: 'YYYY-MM-DD',
+      maxSize: '20m',
+      maxFiles: '14d',
+      format: fileFormat,
+      level: 'info'
+    }),
+    new DailyRotateFile({
+      filename: path.join(logsDir, 'error-%DATE%.log'),
+      datePattern: 'YYYY-MM-DD',
+      maxSize: '20m',
+      maxFiles: '30d',
+      format: fileFormat,
+      level: 'error'
+    })
+  );
+}
 
 // Create logger instance
 const logger = winston.createLogger({

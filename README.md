@@ -185,7 +185,8 @@ cd frontend && npm install && cp env.example .env.local
 |--------|----------|-------------|------|
 | `GET` | `/api/transactions` | Get latest transactions | Optional |
 | `GET` | `/api/stats` | Get system statistics | Optional |
-| `GET` | `/api/health` | Health check | Public |
+| `GET` | `/api/health` | Health check (liveness) | Public |
+| `GET` | `/api/ready` | Readiness (DB; use for Render health URL) | Public |
 | `POST` | `/api/transactions/generate` | Generate single transaction | Public |
 | `POST` | `/api/transactions/producer/start` | Start transaction producer | Public |
 | `POST` | `/api/transactions/producer/stop` | Stop transaction producer | Public |

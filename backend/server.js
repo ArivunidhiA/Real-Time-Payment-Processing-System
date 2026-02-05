@@ -6,6 +6,15 @@ const helmet = require('helmet');
 const compression = require('compression');
 require('dotenv').config();
 
+// Production: warn if JWT secret is default or missing (set JWT_SECRET for real deployments)
+const DEFAULT_JWT_SECRET = 'your-super-secret-jwt-key-change-in-production';
+if (process.env.NODE_ENV === 'production') {
+  const secret = process.env.JWT_SECRET;
+  if (!secret || secret === DEFAULT_JWT_SECRET) {
+    console.warn('WARN: JWT_SECRET is default or unset. Set JWT_SECRET in production for secure auth.');
+  }
+}
+
 // Initialize Sentry for error tracking
 if (process.env.SENTRY_DSN) {
   const Sentry = require('@sentry/node');
@@ -130,10 +139,6 @@ wss.on('connection', (ws, req) => {
     timestamp: new Date().toISOString()
   }));
 
-  ws.on('close', () => {
-    logger.info('WebSocket client disconnected', { ip: clientIp });
-  });
-
   ws.on('error', (error) => {
     logger.logError(error, { service: 'websocket', ip: clientIp });
   });
@@ -147,6 +152,7 @@ wss.on('connection', (ws, req) => {
 
   ws.on('close', () => {
     clearInterval(heartbeatInterval);
+    logger.info('WebSocket client disconnected', { ip: clientIp });
   });
 });
 
@@ -206,7 +212,7 @@ const PORT = process.env.PORT || 3001;
 server.listen(PORT, async () => {
   logger.info(`Server running on port ${PORT}`);
   logger.info(`WebSocket server running on ws://localhost:${PORT}/stream`);
-  logger.info(`Health check: http://localhost:${PORT}/api/health`);
+  logger.info(`Health: http://localhost:${PORT}/api/health | Ready: http://localhost:${PORT}/api/ready`);
   logger.info(`Keep-alive: http://localhost:${PORT}/api/keep-alive`);
   logger.info(`Environment: ${process.env.NODE_ENV || 'development'}`);
   
