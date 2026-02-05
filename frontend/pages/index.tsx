@@ -38,6 +38,49 @@ interface Stats {
   };
 }
 
+// Fallback when backend/DB is unavailable (e.g. Render DB expired)
+const MOCK_TRANSACTIONS: Transaction[] = [
+  { id: 1, transaction_id: 'txn_mock_001', user_id: 1, amount: 49.99, merchant: 'Amazon', status: 'APPROVED', timestamp: new Date(Date.now() - 120000).toISOString() },
+  { id: 2, transaction_id: 'txn_mock_002', user_id: 2, amount: 12.50, merchant: 'Starbucks', status: 'APPROVED', timestamp: new Date(Date.now() - 240000).toISOString() },
+  { id: 3, transaction_id: 'txn_mock_003', user_id: 3, amount: 199.00, merchant: 'Netflix', status: 'DECLINED', timestamp: new Date(Date.now() - 360000).toISOString() },
+  { id: 4, transaction_id: 'txn_mock_004', user_id: 1, amount: 34.20, merchant: 'Uber', status: 'APPROVED', timestamp: new Date(Date.now() - 480000).toISOString() },
+  { id: 5, transaction_id: 'txn_mock_005', user_id: 4, amount: 89.99, merchant: 'Apple Store', status: 'APPROVED', timestamp: new Date(Date.now() - 600000).toISOString() },
+  { id: 6, transaction_id: 'txn_mock_006', user_id: 2, amount: 5.99, merchant: 'Spotify', status: 'APPROVED', timestamp: new Date(Date.now() - 720000).toISOString() },
+  { id: 7, transaction_id: 'txn_mock_007', user_id: 5, amount: 156.00, merchant: 'Target', status: 'APPROVED', timestamp: new Date(Date.now() - 840000).toISOString() },
+  { id: 8, transaction_id: 'txn_mock_008', user_id: 3, amount: 22.40, merchant: 'McDonald\'s', status: 'DECLINED', timestamp: new Date(Date.now() - 960000).toISOString() },
+];
+
+function getMockVolumePerMinute(): Array<{ minute: string; count: number; volume: number }> {
+  const out = [];
+  const now = Date.now();
+  for (let i = 0; i < 12; i++) {
+    const t = new Date(now - (11 - i) * 5 * 60 * 1000);
+    out.push({
+      minute: t.toISOString(),
+      count: 3 + Math.floor(Math.random() * 8),
+      volume: 80 + Math.floor(Math.random() * 400),
+    });
+  }
+  return out;
+}
+
+const MOCK_STATS: Stats = {
+  approvalRate: 87.5,
+  totalTransactions: 1247,
+  approvedTransactions: 1091,
+  declinedTransactions: 156,
+  averageApprovedAmount: 67.42,
+  totalVolume: 73582.18,
+  transactionsLastMinute: 12,
+  volumePerMinute: getMockVolumePerMinute(),
+  systemMetrics: {
+    averageLatency: 142,
+    uptime: 99.99,
+    processedTransactions: 1247,
+    transactionsPerSecond: '0.35',
+  },
+};
+
 export default function Dashboard() {
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [stats, setStats] = useState<Stats | null>(null);
@@ -124,17 +167,23 @@ export default function Dashboard() {
       if (transactionsRes.ok) {
         const transactionsData = await transactionsRes.json();
         setTransactions(transactionsData.data || []);
+      } else {
+        setTransactions(MOCK_TRANSACTIONS);
       }
       if (statsRes.ok) {
         const statsData = await statsRes.json();
         setStats(statsData.data || null);
+      } else {
+        setStats({ ...MOCK_STATS, volumePerMinute: getMockVolumePerMinute() });
       }
       if (!transactionsRes.ok || !statsRes.ok) {
-        setLoadError('Backend or database issue. Ensure Render backend is deployed and DATABASE_URL uses the External URL.');
+        setLoadError('Showing sample data. Backend or database unavailable (e.g. Render DB expired).');
       }
     } catch (error) {
       console.error('Error fetching data:', error);
-      setLoadError('Cannot reach backend. Check NEXT_PUBLIC_BACKEND_URL and that the backend is running.');
+      setTransactions(MOCK_TRANSACTIONS);
+      setStats({ ...MOCK_STATS, volumePerMinute: getMockVolumePerMinute() });
+      setLoadError('Showing sample data. Cannot reach backend.');
     } finally {
       setIsLoading(false);
     }
