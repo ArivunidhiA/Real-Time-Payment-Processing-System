@@ -1,11 +1,10 @@
 import React, { useState, useEffect, useRef } from 'react';
 import Head from 'next/head';
 import { Component as EtherealShadow } from '@/components/ui/ethereal-shadow';
-import { Button } from '@/components/ui/neon-button';
 import StatsCards from '../components/StatsCards';
 import VolumeChart from '../components/VolumeChart';
 import TransactionTable from '../components/TransactionTable';
-import { Play, Square, RefreshCw, Wifi, WifiOff } from 'lucide-react';
+import { Wifi, WifiOff } from 'lucide-react';
 import { motion } from 'framer-motion';
 
 interface Transaction {
@@ -43,6 +42,7 @@ export default function Dashboard() {
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [stats, setStats] = useState<Stats | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [loadError, setLoadError] = useState<string | null>(null);
   const [connectionStatus, setConnectionStatus] = useState<'connected' | 'disconnected' | 'error'>('disconnected');
   const wsRef = useRef<WebSocket | null>(null);
   const reconnectTimeoutRef = useRef<NodeJS.Timeout | null>(null);
@@ -114,8 +114,8 @@ export default function Dashboard() {
   const fetchData = async () => {
     try {
       setIsLoading(true);
-      
-      // Fetch transactions and stats in parallel
+      setLoadError(null);
+
       const [transactionsRes, statsRes] = await Promise.all([
         fetch(`${apiBaseUrl}/transactions`),
         fetch(`${apiBaseUrl}/stats`)
@@ -125,88 +125,18 @@ export default function Dashboard() {
         const transactionsData = await transactionsRes.json();
         setTransactions(transactionsData.data || []);
       }
-
       if (statsRes.ok) {
         const statsData = await statsRes.json();
         setStats(statsData.data || null);
       }
+      if (!transactionsRes.ok || !statsRes.ok) {
+        setLoadError('Backend or database issue. Ensure Render backend is deployed and DATABASE_URL uses the External URL.');
+      }
     } catch (error) {
       console.error('Error fetching data:', error);
+      setLoadError('Cannot reach backend. Check NEXT_PUBLIC_BACKEND_URL and that the backend is running.');
     } finally {
       setIsLoading(false);
-    }
-  };
-
-  // Generate a single transaction
-  const generateTransaction = async () => {
-    try {
-      const response = await fetch(`${apiBaseUrl}/transactions/generate`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        mode: 'cors',
-      });
-      
-      if (!response.ok) {
-        const errorText = await response.text();
-        let errorData;
-        try {
-          errorData = JSON.parse(errorText);
-        } catch {
-          errorData = { error: errorText || `HTTP ${response.status}: ${response.statusText}` };
-        }
-        console.error('Failed to generate transaction:', errorData);
-        alert(`Error: ${errorData.error || 'Failed to generate transaction'}`);
-        return;
-      }
-      
-      const data = await response.json();
-      console.log('Transaction generated:', data);
-      // Refresh stats and transactions after generating
-      setTimeout(() => {
-        fetchData();
-      }, 500);
-    } catch (error: any) {
-      console.error('Error generating transaction:', error);
-      alert(`Error generating transaction: ${error.message || 'Network error. Please check console for details.'}`);
-    }
-  };
-
-  // Start/stop producer
-  const toggleProducer = async (action: 'start' | 'stop') => {
-    try {
-      const response = await fetch(`${apiBaseUrl}/transactions/producer/${action}`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        mode: 'cors',
-        body: action === 'start' ? JSON.stringify({ interval: 2000 }) : undefined,
-      });
-      
-      if (!response.ok) {
-        const errorText = await response.text();
-        let errorData;
-        try {
-          errorData = JSON.parse(errorText);
-        } catch {
-          errorData = { error: errorText || `HTTP ${response.status}: ${response.statusText}` };
-        }
-        console.error(`Failed to ${action} producer:`, errorData);
-        alert(`Error: ${errorData.error || `Failed to ${action} producer`}`);
-        return;
-      }
-      
-      const data = await response.json();
-      console.log(`Producer ${action}ed successfully:`, data.message);
-      // Refresh stats to show updated status
-      setTimeout(() => {
-        fetchData();
-      }, 500);
-    } catch (error: any) {
-      console.error(`Error ${action}ing producer:`, error);
-      alert(`Error ${action}ing producer: ${error.message || 'Network error. Please check console for details.'}`);
     }
   };
 
@@ -262,7 +192,7 @@ export default function Dashboard() {
           noise={{ opacity: 0.5, scale: 1.2 }}
           sizing="fill"
         />
-        <div className="absolute inset-0 bg-black/50 pointer-events-none" aria-hidden />
+        <div className="absolute inset-0 bg-black/70 pointer-events-none z-[1]" aria-hidden />
       </div>
       <div className="relative z-10 min-h-screen overflow-y-auto">
           {/* Header */}
@@ -293,13 +223,6 @@ export default function Dashboard() {
                       {connectionStatus === 'connected' ? 'Live' : 'Offline'}
                     </span>
                   </motion.div>
-                  <Button
-                    onClick={generateTransaction}
-                    className="flex items-center gap-2 text-blue-400"
-                  >
-                    <RefreshCw className="w-4 h-4 icon-glow-blue" />
-                    Generate Transaction
-                  </Button>
                 </div>
               </div>
             </div>
@@ -307,6 +230,11 @@ export default function Dashboard() {
 
           {/* Main Content */}
           <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+            {loadError && (
+              <div className="mb-6 p-4 rounded-lg bg-amber-500/20 border border-amber-500/40 text-amber-200 text-sm">
+                {loadError}
+              </div>
+            )}
             {/* Stats Cards */}
             <StatsCards stats={stats} />
 
@@ -319,30 +247,12 @@ export default function Dashboard() {
                 transition={{ duration: 0.5, delay: 0.2 }}
                 className="bg-white/10 backdrop-blur-lg rounded-xl border border-white/20 p-6 card-glow"
               >
-                <h3 className="text-lg font-semibold text-white mb-4">System Controls</h3>
-                <div className="space-y-4">
-                  <div className="flex space-x-4">
-                    <Button
-                      onClick={() => toggleProducer('start')}
-                      className="flex-1 text-green-400 border-green-500/30 bg-green-500/5 hover:bg-green-500/0 flex items-center justify-center gap-2"
-                    >
-                      <Play className="w-4 h-4 icon-glow-green" />
-                      Start Producer
-                    </Button>
-                    <Button
-                      onClick={() => toggleProducer('stop')}
-                      className="flex-1 text-red-400 border-red-500/30 bg-red-500/5 hover:bg-red-500/0 flex items-center justify-center gap-2"
-                    >
-                      <Square className="w-4 h-4 icon-glow" />
-                      Stop Producer
-                    </Button>
-                  </div>
-                  <div className="text-sm text-white space-y-2 pt-4 border-t border-white/20">
-                    <p><strong className="text-white font-bold">Total Transactions:</strong> <span className="font-semibold">{stats?.totalTransactions || 0}</span></p>
-                    <p><strong className="text-white font-bold">Approved:</strong> <span className="font-semibold text-green-400">{stats?.approvedTransactions || 0}</span></p>
-                    <p><strong className="text-white font-bold">Declined:</strong> <span className="font-semibold text-red-400">{stats?.declinedTransactions || 0}</span></p>
-                    <p><strong className="text-white font-bold">Total Volume:</strong> <span className="font-semibold text-blue-400">${(stats?.totalVolume || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span></p>
-                  </div>
+                <h3 className="text-lg font-semibold text-white mb-4">Summary</h3>
+                <div className="text-sm text-white space-y-2">
+                  <p><strong className="text-white font-bold">Total Transactions:</strong> <span className="font-semibold">{stats?.totalTransactions ?? 0}</span></p>
+                  <p><strong className="text-white font-bold">Approved:</strong> <span className="font-semibold text-green-400">{stats?.approvedTransactions ?? 0}</span></p>
+                  <p><strong className="text-white font-bold">Declined:</strong> <span className="font-semibold text-red-400">{stats?.declinedTransactions ?? 0}</span></p>
+                  <p><strong className="text-white font-bold">Total Volume:</strong> <span className="font-semibold text-blue-400">${(stats?.totalVolume ?? 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span></p>
                 </div>
               </motion.div>
             </div>

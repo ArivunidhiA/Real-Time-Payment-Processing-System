@@ -37,8 +37,9 @@ Before starting, make sure you have:
 
 1. Once created, click on your database
 2. Find **"Connections"** section
-3. Copy the **"Internal Database URL"** or **"External Database URL"**
-   - Format: `postgresql://user:password@host:port/database`
+3. Copy the **"External Database URL"** (recommended for Web Services)
+   - Format: `postgresql://user:password@dpg-xxxxx-a.region-postgres.render.com/database`
+   - Use **External** so the host resolves (Internal URL can cause `ENOTFOUND` from Web Services)
    - **Save this** - you'll need it!
 
 ### Step 4: Run Database Schema
@@ -177,6 +178,10 @@ Render free tier includes:
 - Check `DATABASE_URL` is correct
 - Verify database is running
 - Check if you need to whitelist Render IPs (usually not needed)
+
+### `getaddrinfo ENOTFOUND dpg-xxxxx-a` (host not found)
+- Your Web Service is using Render's **Internal** Database URL, whose host only resolves inside Render's private network.
+- **Fix:** In Render → your **PostgreSQL** service → **Connections** → copy the **External Database URL** (host looks like `dpg-xxxxx-a.oregon-postgres.render.com`). Set that as `DATABASE_URL` in your **Web Service** → Environment → Save and redeploy.
 
 ### Kafka Connection Fails
 - Verify Upstash credentials are correct

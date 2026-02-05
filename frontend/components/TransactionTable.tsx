@@ -170,8 +170,8 @@ const TransactionTable: React.FC<TransactionTableProps> = ({ transactions, isLoa
               ))
             ) : (
               <tr>
-                <td colSpan={6} className="px-6 py-8 text-center text-sm text-white/50">
-                  No transactions available
+                <td colSpan={6} className="px-6 py-8 text-center text-sm text-white/70">
+                  No transactions in the database yet. Data appears here as the system processes transactions.
                 </td>
               </tr>
             )}
